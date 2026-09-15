@@ -1,0 +1,190 @@
+---
+alwaysApply: true
+---
+# Feature Development Guidelines
+
+You are working in an existing production codebase.
+
+Before implementing any feature, understand and follow the existing architecture and conventions documented in:
+
+* `docs/CODEBASE_CONTEXT.md`
+* Relevant existing modules
+* Relevant existing tests
+
+## Development Process
+
+Every feature must follow this process:
+
+### Step 1 — Understand
+
+Before writing code:
+
+* Identify the business requirement.
+* Identify affected modules.
+* Identify related existing functionality.
+* Find at least 2-3 similar implementations in the codebase.
+* Identify the established pattern used by those implementations.
+* Identify database changes required.
+* Identify API changes required.
+* Identify authentication/authorization requirements.
+* Identify external integrations involved.
+* Identify failure scenarios.
+* Identify required tests.
+
+Do not immediately start coding.
+
+### Step 2 — Create an Implementation Plan
+
+Before modifying files, provide:
+
+#### Requirements
+
+What the feature needs to accomplish.
+
+#### Existing Code Reuse
+
+Which existing modules, utilities, services, middleware, repositories, or components can be reused.
+
+#### Files to Create
+
+List every new file and explain its purpose.
+
+#### Files to Modify
+
+List every existing file and explain the required modification.
+
+#### Database Changes
+
+Explain:
+
+* Tables/models affected
+* Columns
+* Relationships
+* Indexes
+* Migrations
+* Data migration requirements
+
+#### API Changes
+
+For each endpoint:
+
+* Method
+* Route
+* Authentication
+* Authorization
+* Request
+* Validation
+* Response
+* Error cases
+
+#### Business Logic
+
+Describe the expected flow.
+
+#### Testing Strategy
+
+Describe:
+
+* Unit tests
+* Integration tests
+* API tests
+* Edge cases
+* Failure scenarios
+
+#### Risks
+
+Identify security, performance, compatibility, and data-integrity risks.
+
+Do not implement until the plan is clear.
+
+### Step 3 — Implement
+
+When implementation begins:
+
+1. Follow existing project architecture.
+2. Prefer existing utilities and abstractions.
+3. Do not introduce a new architectural pattern without a strong reason.
+4. Keep controllers/routes thin.
+5. Keep business logic in the appropriate service/domain layer.
+6. Keep database operations in the existing data-access layer.
+7. Validate external/user input.
+8. Handle errors consistently with existing conventions.
+9. Use async/await consistently where applicable.
+10. Avoid unnecessary abstractions.
+11. Avoid unrelated refactoring.
+12. Keep the change focused on the requested feature.
+
+### Step 4 — Testing
+
+Every feature must include appropriate tests.
+
+At minimum consider:
+
+* Happy path
+* Invalid input
+* Missing input
+* Authentication failure
+* Authorization failure
+* Not-found cases
+* Duplicate/conflict cases
+* Database failures
+* External service failures
+* Boundary conditions
+
+Follow the existing test framework and structure.
+
+### Step 5 — Review
+
+After implementation, perform a self-review.
+
+Check:
+
+#### Correctness
+
+* Does the implementation satisfy every requirement?
+
+#### Architecture
+
+* Does it follow existing patterns?
+
+#### Maintainability
+
+* Is the code easy to understand and modify?
+
+#### Security
+
+* Are inputs validated?
+* Are authorization checks correct?
+* Are secrets protected?
+* Are sensitive errors avoided?
+
+#### Performance
+
+* Are unnecessary database queries avoided?
+* Are indexes required?
+* Are expensive operations handled appropriately?
+
+#### Error Handling
+
+* Are errors handled consistently?
+
+#### Testing
+
+* Are important edge cases covered?
+
+#### Scope
+
+* Did the implementation modify anything unrelated?
+
+Report issues before considering the feature complete.
+
+## Important Rule
+
+If the existing codebase has multiple patterns for the same problem:
+
+1. Identify the dominant/current pattern.
+2. Prefer the pattern used by the most recent, well-maintained implementations.
+3. Mention the inconsistency.
+4. Do not silently introduce another pattern.
+
+If architectural ambiguity exists, stop and ask for clarification instead of guessing.

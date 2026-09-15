@@ -1,0 +1,92 @@
+---
+alwaysApply: true
+---
+---
+description: Architecture rules for the Expense Tracker backend
+globs:
+  - "backend/src/**/*.ts"
+  - "backend/prisma/**/*.prisma"
+alwaysApply: true
+---
+
+# Architecture Rules
+
+The backend is a monolithic Express + TypeScript application.
+
+The intended application flow is:
+
+Route
+→ Controller
+→ Service
+→ Repository
+→ Prisma
+→ Database
+
+## Layer Responsibilities
+
+### Routes
+
+Routes define HTTP endpoints and compose middleware.
+
+Do not put business logic in routes.
+
+### Controllers
+
+Controllers handle HTTP concerns:
+
+- request input
+- validation
+- service invocation
+- HTTP response
+
+Controllers should remain thin.
+
+### Services
+
+Services contain business logic and domain rules.
+
+Services should not depend on Express `Request` or `Response` objects.
+
+### Repositories
+
+Repositories contain Prisma/database access.
+
+Repositories should not contain business decisions.
+
+### Prisma
+
+Prisma is the persistence layer.
+
+Do not access Prisma directly from controllers.
+
+## Feature Organization
+
+Follow the existing horizontal layer structure:
+
+backend/src/routes/
+backend/src/controllers/
+backend/src/services/
+backend/src/repositories/
+
+Use feature-named files such as:
+
+expenseRoutes.ts
+expenseController.ts
+expenseService.ts
+expenseRepository.ts
+
+Do not introduce vertical feature folders unless explicitly approved.
+
+## API Versioning
+
+All feature APIs should be mounted under:
+
+`/api/v1/<resource>`
+
+## Important
+
+The current repository is an early scaffold.
+
+Do not assume a layer is implemented simply because its directory exists.
+
+Inspect actual implementations before copying patterns.

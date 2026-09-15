@@ -1,0 +1,36 @@
+---
+alwaysApply: true
+---
+---
+description: Backend development conventions
+globs:
+  - "backend/src/**/*.ts"
+alwaysApply: true
+---
+
+# Backend Rules
+
+## Language
+
+Use TypeScript.
+
+Maintain strict type safety.
+
+Do not use `any` unless there is a documented reason.
+
+## Express
+
+Follow Express 5 conventions.
+
+Keep middleware, routes, controllers, services and repositories separated by responsibility.
+
+## Controllers
+
+Follow the existing controller style:
+
+```ts
+export const featureController = {
+  method(req, res) {
+    // ...
+  }
+};
