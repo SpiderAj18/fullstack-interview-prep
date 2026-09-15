@@ -32,11 +32,13 @@ src/
 cd expense-tracker/backend
 cp .env.example .env
 npm install
-npm run db:push
+npm run db:migrate
 npm run dev
 ```
 
 API runs at `http://localhost:3001`.
+
+> Prefer `db:migrate` for schema changes. Use `db:push` only for quick local experiments without migration history.
 
 ## Scripts
 
@@ -49,6 +51,8 @@ API runs at `http://localhost:3001`.
 | `npm run db:migrate` | Create/run migrations |
 | `npm run db:studio` | Open Prisma Studio |
 | `npm run lint` | Type-check without emit |
+| `npm test` | Run API tests |
+| `npm run test:watch` | Run tests in watch mode |
 
 ## API Endpoints (initial)
 
@@ -56,6 +60,7 @@ API runs at `http://localhost:3001`.
 |--------|------|------|-------------|
 | GET | `/` | No | API info |
 | GET | `/api/v1/health` | No | Health check |
+| POST | `/api/v1/auth/register` | No | Register a user and receive a JWT |
 
 ## Data Model
 
@@ -65,11 +70,10 @@ API runs at `http://localhost:3001`.
 
 ## Next Steps
 
-1. Auth routes (`POST /api/v1/auth/register`, `POST /api/v1/auth/login`)
+1. Auth login (`POST /api/v1/auth/login`)
 2. Expense CRUD with pagination and filters
 3. Category CRUD
-4. Integration tests
-5. Frontend integration
+4. Frontend integration
 
 ## Error Format
 

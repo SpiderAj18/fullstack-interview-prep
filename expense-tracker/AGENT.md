@@ -491,6 +491,17 @@ For low-risk implementation details, prefer the existing project convention.
 
 ---
 
+## Postman
+
+- [ ] Add/update Postman request(s)
+- [ ] Add request examples
+- [ ] Configure required collection/environment variables
+- [ ] Configure authentication where required
+- [ ] Add positive and important negative scenarios
+- [ ] Verify the request against the implemented API
+
+---
+
 # 20. Final Principle
 
 The goal is not merely to make the feature work.
