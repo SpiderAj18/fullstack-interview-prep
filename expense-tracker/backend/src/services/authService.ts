@@ -1,19 +1,19 @@
 import { Prisma } from "@prisma/client";
 import { signAccessToken } from "../middleware/auth";
 import { userRepository } from "../repositories/userRepository";
-import { ConflictError } from "../utils/errors";
-import { hashPassword } from "../utils/password";
-import type { RegisterBody } from "../validators/authSchemas";
+import { ConflictError, UnauthorizedError } from "../utils/errors";
+import { comparePassword, DUMMY_PASSWORD_HASH, hashPassword } from "../utils/password";
+import type { LoginBody, RegisterBody } from "../validators/authSchemas";
 
-export type RegisteredUser = {
+export type AuthUser = {
   id: string;
   email: string;
   name: string | null;
   createdAt: Date;
 };
 
-export type RegisterResult = {
-  user: RegisteredUser;
+export type AuthResult = {
+  user: AuthUser;
   accessToken: string;
 };
 
@@ -22,7 +22,7 @@ function toPublicUser(user: {
   email: string;
   name: string | null;
   createdAt: Date;
-}): RegisteredUser {
+}): AuthUser {
   return {
     id: user.id,
     email: user.email,
@@ -31,8 +31,23 @@ function toPublicUser(user: {
   };
 }
 
+function buildAuthResult(user: {
+  id: string;
+  email: string;
+  name: string | null;
+  createdAt: Date;
+}): AuthResult {
+  return {
+    user: toPublicUser(user),
+    accessToken: signAccessToken({
+      userId: user.id,
+      email: user.email,
+    }),
+  };
+}
+
 export const authService = {
-  async register(input: RegisterBody): Promise<RegisterResult> {
+  async register(input: RegisterBody): Promise<AuthResult> {
     const email = input.email.toLowerCase();
     const passwordHash = await hashPassword(input.password);
 
@@ -43,15 +58,7 @@ export const authService = {
         name: input.name,
       });
 
-      const accessToken = signAccessToken({
-        userId: user.id,
-        email: user.email,
-      });
-
-      return {
-        user: toPublicUser(user),
-        accessToken,
-      };
+      return buildAuthResult(user);
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -62,5 +69,21 @@ export const authService = {
 
       throw error;
     }
+  },
+
+  async login(input: LoginBody): Promise<AuthResult> {
+    const email = input.email.toLowerCase();
+    const user = await userRepository.findByEmail(email);
+
+    const passwordMatches = await comparePassword(
+      input.password,
+      user?.passwordHash ?? DUMMY_PASSWORD_HASH,
+    );
+
+    if (!user || !passwordMatches) {
+      throw new UnauthorizedError("Invalid email or password");
+    }
+
+    return buildAuthResult(user);
   },
 };

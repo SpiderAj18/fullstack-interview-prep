@@ -61,6 +61,17 @@ API runs at `http://localhost:3001`.
 | GET | `/` | No | API info |
 | GET | `/api/v1/health` | No | Health check |
 | POST | `/api/v1/auth/register` | No | Register a user and receive a JWT |
+| POST | `/api/v1/auth/login` | No | Log in and receive a JWT |
+
+## Postman
+
+Import `postman/Expense-Tracker-API.postman_collection.json` into Postman.
+
+Collection variables:
+
+* `baseUrl` — default `http://localhost:3001`
+* `userEmail` / `userPassword` — demo credentials
+* `accessToken` — set automatically by successful Register/Login requests
 
 ## Data Model
 
@@ -70,10 +81,9 @@ API runs at `http://localhost:3001`.
 
 ## Next Steps
 
-1. Auth login (`POST /api/v1/auth/login`)
-2. Expense CRUD with pagination and filters
-3. Category CRUD
-4. Frontend integration
+1. Expense CRUD with pagination and filters
+2. Category CRUD
+3. Frontend integration
 
 ## Error Format
 

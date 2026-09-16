@@ -14,3 +14,12 @@ export const registerBodySchema = z
   .strict();
 
 export type RegisterBody = z.infer<typeof registerBodySchema>;
+
+export const loginBodySchema = z
+  .object({
+    email: z.string().trim().email().max(255),
+    password: z.string().min(8).max(72),
+  })
+  .strict();
+
+export type LoginBody = z.infer<typeof loginBodySchema>;
