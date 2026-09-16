@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { signAccessToken } from "../middleware/auth";
+import { refreshSessionRepository } from "../repositories/refreshSessionRepository";
 import { userRepository } from "../repositories/userRepository";
 import { ConflictError, UnauthorizedError } from "../utils/errors";
 import { comparePassword, DUMMY_PASSWORD_HASH, hashPassword } from "../utils/password";
@@ -15,6 +16,12 @@ export type AuthUser = {
 export type AuthResult = {
   user: AuthUser;
   accessToken: string;
+  refreshToken: string;
+};
+
+export type TokenPair = {
+  accessToken: string;
+  refreshToken: string;
 };
 
 function toPublicUser(user: {
@@ -31,18 +38,25 @@ function toPublicUser(user: {
   };
 }
 
-function buildAuthResult(user: {
+async function issueAuthResult(user: {
   id: string;
   email: string;
   name: string | null;
   createdAt: Date;
-}): AuthResult {
+}): Promise<AuthResult> {
+  const accessToken = signAccessToken({
+    userId: user.id,
+    email: user.email,
+  });
+  const { refreshToken } = await refreshSessionRepository.create({
+    userId: user.id,
+    email: user.email,
+  });
+
   return {
     user: toPublicUser(user),
-    accessToken: signAccessToken({
-      userId: user.id,
-      email: user.email,
-    }),
+    accessToken,
+    refreshToken,
   };
 }
 
@@ -58,7 +72,7 @@ export const authService = {
         name: input.name,
       });
 
-      return buildAuthResult(user);
+      return issueAuthResult(user);
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -84,6 +98,22 @@ export const authService = {
       throw new UnauthorizedError("Invalid email or password");
     }
 
-    return buildAuthResult(user);
+    return issueAuthResult(user);
+  },
+
+  async refresh(refreshToken: string): Promise<TokenPair> {
+    const rotated = await refreshSessionRepository.rotate(refreshToken);
+
+    return {
+      accessToken: signAccessToken({
+        userId: rotated.session.userId,
+        email: rotated.session.email,
+      }),
+      refreshToken: rotated.refreshToken,
+    };
+  },
+
+  async logout(refreshToken: string): Promise<void> {
+    await refreshSessionRepository.revokeByToken(refreshToken);
   },
 };

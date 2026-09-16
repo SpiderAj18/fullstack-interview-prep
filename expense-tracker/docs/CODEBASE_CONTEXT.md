@@ -21,17 +21,19 @@
 - Express 5 + TypeScript HTTP API with security middleware (Helmet, CORS, JSON body limit).
 - Request correlation IDs + structured request logging.
 - Global error mapping (`AppError`, Zod, 404, 500).
-- JWT Bearer auth helpers (`authenticate`, `requireAuth`, `signAccessToken`) — **not mounted on any route yet**.
-- Prisma schema for `User`, `Category`, `Expense` with SQLite.
-- One live feature route: `GET /api/v1/health`.
+- JWT Bearer auth helpers (`authenticate`, `requireAuth`, `signAccessToken`) — used by register/login.
+- Prisma schema for `User`, `Category`, `Expense` with **PostgreSQL**.
+- Redis client wired for local/cache infrastructure (`REDIS_URL`).
+- Auth routes: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`.
+- Health check reports database + Redis dependency status.
 
 **What does not exist yet**
 
-- Auth register/login routes and password hashing usage.
-- Expense/Category CRUD, services, repositories.
-- Migrations folder (schema is pushed via `prisma db push`).
-- Tests, queues, scheduled jobs, email/SMS/payment/AWS integrations.
+- Refresh tokens / logout / profile.
+- Expense/Category CRUD beyond schema.
+- Queues, scheduled jobs, email/SMS/payment/AWS integrations.
 - Frontend (CORS default targets Vite at `http://localhost:5173`).
+- Redis-backed feature usage (client is connected; no cache/session features yet).
 
 **Primary problem domain:** personal finance tracking (users → categories → expenses).
 
@@ -44,10 +46,11 @@
 | Runtime | Node.js + TypeScript (ES2022, CommonJS) | `package.json`, `tsconfig.json` |
 | HTTP | Express 5 | `express` `^5.1.0`, `src/app.ts` |
 | ORM | Prisma 6 + `@prisma/client` | `prisma/schema.prisma`, `src/config/database.ts` |
-| DB (dev) | SQLite via `DATABASE_URL=file:./dev.db` | `.env.example`, `schema.prisma` `provider = "sqlite"` |
+| DB (local) | PostgreSQL 16 via Docker Compose | `docker-compose.yml`, `DATABASE_URL` |
+| Cache / infra | Redis 7 via Docker Compose | `src/config/redis.ts`, `REDIS_URL` |
 | Validation | Zod 4 | `src/config/env.ts`, `errorHandler` handles `ZodError` |
 | Auth tokens | `jsonwebtoken` | `src/middleware/auth.ts` |
-| Password hashing (dep only) | `bcryptjs` | listed in `package.json`; **unused in `src/`** |
+| Password hashing | `bcryptjs` | `src/utils/password.ts` |
 | Security headers | `helmet` | `createApp()` in `src/app.ts` |
 | CORS | `cors` | `createApp()` |
 | Config | `dotenv` + Zod schema | `src/config/env.ts` |
@@ -346,9 +349,11 @@ Ownership rules implied by schema (not coded yet):
 
 ### Technology
 
-- **SQLite** for local development (`provider = "sqlite"`).
+- **PostgreSQL** for local development (`provider = "postgresql"`).
 - Access via **Prisma Client** singleton: `export const prisma = new PrismaClient()` in `src/config/database.ts`.
-- Boot: `await prisma.$connect()` in `startServer()`.
+- Boot: `await prisma.$connect()` and Redis `connectRedis()` in `startServer()`.
+- Local infra: `expense-tracker/docker-compose.yml` (Postgres + Redis).
+- Money fields use `Decimal(12, 2)` on `Expense.amount`.
 
 ### Schema organization
 

@@ -39,6 +39,7 @@ describe("POST /api/v1/auth/login", () => {
     expect(response.body.user.id).toEqual(expect.any(String));
     expect(response.body.user.createdAt).toEqual(expect.any(String));
     expect(response.body.accessToken).toEqual(expect.any(String));
+    expect(response.body.refreshToken).toEqual(expect.any(String));
     expect(response.body.user.passwordHash).toBeUndefined();
     expect(response.body.password).toBeUndefined();
 

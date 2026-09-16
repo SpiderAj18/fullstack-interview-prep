@@ -36,5 +36,7 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
 }
 
 export function signAccessToken(payload: AuthPayload): string {
-  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN as jwt.SignOptions["expiresIn"] });
+  return jwt.sign(payload, env.JWT_SECRET, {
+    expiresIn: env.JWT_ACCESS_EXPIRES_IN as jwt.SignOptions["expiresIn"],
+  });
 }

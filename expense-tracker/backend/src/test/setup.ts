@@ -1,18 +1,22 @@
 import { execSync } from "child_process";
 import { afterAll, beforeAll, beforeEach } from "vitest";
 import { prisma } from "../config/database";
+import { connectRedis, disconnectRedis, redis } from "../config/redis";
 
-beforeAll(() => {
-  execSync("npx prisma db push --skip-generate", {
+beforeAll(async () => {
+  execSync("npx prisma db push", {
     stdio: "inherit",
     env: process.env,
   });
+  await connectRedis();
 });
 
 beforeEach(async () => {
   await prisma.user.deleteMany();
+  await redis.flushDb();
 });
 
 afterAll(async () => {
   await prisma.$disconnect();
+  await disconnectRedis();
 });
