@@ -78,7 +78,12 @@ Infrastructure defaults:
 | POST | `/api/v1/auth/register` | No | Register; returns access + refresh tokens |
 | POST | `/api/v1/auth/login` | No | Login; returns access + refresh tokens |
 | POST | `/api/v1/auth/refresh` | No | Rotate access + refresh tokens |
-| POST | `/api/v1/auth/logout` | No | Revoke refresh session (`204`) |
+| POST | `/api/v1/auth/logout` | No* | Revoke refresh session (`204`) |
+| GET | `/api/v1/auth/me` | Yes | Get current user profile |
+| PATCH | `/api/v1/auth/me` | Yes | Update profile (`name`) |
+| POST | `/api/v1/auth/change-password` | Yes | Change password (`204`; revokes refresh sessions) |
+
+\* Logout uses the refresh token in the body, not the access token.
 
 ## Auth tokens
 
@@ -103,10 +108,9 @@ Collection variables:
 
 ## Next Steps
 
-1. Profile (get/update/change password)
-2. Category CRUD
-3. Expense CRUD with pagination and filters
-4. Frontend integration
+1. Category CRUD
+2. Expense CRUD with pagination and filters
+3. Frontend integration
 
 ## Error Format
 

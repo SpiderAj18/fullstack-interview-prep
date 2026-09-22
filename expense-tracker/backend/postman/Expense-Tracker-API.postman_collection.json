@@ -161,6 +161,64 @@
           }
         },
         {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/auth/me",
+            "description": "Positive: get authenticated user profile."
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Doe\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/me",
+            "description": "Positive: update profile name."
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"{{userPassword}}\",\n  \"newPassword\": \"newpassword1\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/change-password",
+            "description": "Positive: change password (204) and revoke refresh sessions."
+          }
+        },
+        {
           "name": "Login - Wrong Password",
           "request": {
             "method": "POST",

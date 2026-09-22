@@ -1712,7 +1712,7 @@ Update this section after every completed feature.
   FEAT-003 Refresh Token            COMPLETED
   FEAT-004 Logout                   COMPLETED
   FEAT-005 Password Recovery        PLANNED
-  FEAT-006 Profile                  PLANNED
+  FEAT-006 Profile                  COMPLETED
   FEAT-010 Categories               PLANNED
   FEAT-011 Accounts                 PLANNED
   FEAT-012 Expenses                 PLANNED

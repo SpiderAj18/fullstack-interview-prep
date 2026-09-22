@@ -32,6 +32,10 @@ function rotatedKey(tokenHash: string): string {
   return `rt:rotated:${tokenHash}`;
 }
 
+function userSessionsKey(userId: string): string {
+  return `rt:user:${userId}`;
+}
+
 function refreshTtlSeconds(): number {
   return parseDurationToSeconds(env.JWT_REFRESH_EXPIRES_IN);
 }
@@ -55,6 +59,7 @@ async function deleteSession(session: RefreshSessionRecord): Promise<void> {
   await redis.del(sessionKey(session.sessionId));
   await redis.del(lookupKey(session.tokenHash));
   await redis.sRem(familyKey(session.familyId), session.sessionId);
+  await redis.sRem(userSessionsKey(session.userId), session.sessionId);
 }
 
 export const refreshSessionRepository = {
@@ -77,6 +82,8 @@ export const refreshSessionRepository = {
     await redis.set(lookupKey(tokenHash), session.sessionId, { EX: ttlSeconds });
     await redis.sAdd(familyKey(session.familyId), session.sessionId);
     await redis.expire(familyKey(session.familyId), ttlSeconds);
+    await redis.sAdd(userSessionsKey(session.userId), session.sessionId);
+    await redis.expire(userSessionsKey(session.userId), ttlSeconds);
 
     return { refreshToken, session };
   },
@@ -119,6 +126,7 @@ export const refreshSessionRepository = {
     await writeSession(updatedSession, ttlSeconds);
     await redis.set(lookupKey(nextHash), updatedSession.sessionId, { EX: ttlSeconds });
     await redis.expire(familyKey(updatedSession.familyId), ttlSeconds);
+    await redis.expire(userSessionsKey(updatedSession.userId), ttlSeconds);
 
     return {
       refreshToken: nextRefreshToken,
@@ -156,5 +164,20 @@ export const refreshSessionRepository = {
     }
 
     await redis.del(familyKey(familyId));
+  },
+
+  async revokeAllForUser(userId: string): Promise<void> {
+    const sessionIds = await redis.sMembers(userSessionsKey(userId));
+
+    for (const sessionId of sessionIds) {
+      const session = await readSession(sessionId);
+      if (session) {
+        await deleteSession(session);
+      } else {
+        await redis.del(sessionKey(sessionId));
+      }
+    }
+
+    await redis.del(userSessionsKey(userId));
   },
 };

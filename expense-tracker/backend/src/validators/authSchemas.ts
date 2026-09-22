@@ -35,3 +35,28 @@ export type RefreshBody = z.infer<typeof refreshBodySchema>;
 export const logoutBodySchema = refreshBodySchema;
 
 export type LogoutBody = z.infer<typeof logoutBodySchema>;
+
+export const updateProfileBodySchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .max(100)
+      .transform((value) => (value.length === 0 ? null : value)),
+  })
+  .strict();
+
+export type UpdateProfileBody = z.infer<typeof updateProfileBodySchema>;
+
+export const changePasswordBodySchema = z
+  .object({
+    currentPassword: z.string().min(8).max(72),
+    newPassword: z.string().min(8).max(72),
+  })
+  .strict()
+  .refine((data) => data.currentPassword !== data.newPassword, {
+    message: "New password must be different from the current password",
+    path: ["newPassword"],
+  });
+
+export type ChangePasswordBody = z.infer<typeof changePasswordBodySchema>;

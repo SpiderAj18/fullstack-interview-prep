@@ -7,6 +7,10 @@ export type CreateUserInput = {
   name?: string;
 };
 
+export type UpdateProfileInput = {
+  name: string | null;
+};
+
 export const userRepository = {
   async create(input: CreateUserInput): Promise<User> {
     return prisma.user.create({
@@ -21,6 +25,30 @@ export const userRepository = {
   async findByEmail(email: string): Promise<User | null> {
     return prisma.user.findUnique({
       where: { email },
+    });
+  },
+
+  async findById(id: string): Promise<User | null> {
+    return prisma.user.findUnique({
+      where: { id },
+    });
+  },
+
+  async updateProfile(id: string, input: UpdateProfileInput): Promise<User> {
+    return prisma.user.update({
+      where: { id },
+      data: {
+        name: input.name,
+      },
+    });
+  },
+
+  async updatePasswordHash(id: string, passwordHash: string): Promise<User> {
+    return prisma.user.update({
+      where: { id },
+      data: {
+        passwordHash,
+      },
     });
   },
 };
