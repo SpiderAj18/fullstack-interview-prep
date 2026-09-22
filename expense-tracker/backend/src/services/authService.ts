@@ -2,9 +2,11 @@ import { Prisma } from "@prisma/client";
 import { signAccessToken } from "../middleware/auth";
 import { refreshSessionRepository } from "../repositories/refreshSessionRepository";
 import { userRepository } from "../repositories/userRepository";
+import { prisma } from "../config/database";
 import { ConflictError, UnauthorizedError } from "../utils/errors";
 import { comparePassword, DUMMY_PASSWORD_HASH, hashPassword } from "../utils/password";
 import type { LoginBody, RegisterBody } from "../validators/authSchemas";
+import { categorySeedService } from "./categorySeedService";
 
 export type AuthUser = {
   id: string;
@@ -66,10 +68,17 @@ export const authService = {
     const passwordHash = await hashPassword(input.password);
 
     try {
-      const user = await userRepository.create({
-        email,
-        passwordHash,
-        name: input.name,
+      const user = await prisma.$transaction(async (tx) => {
+        const created = await tx.user.create({
+          data: {
+            email,
+            passwordHash,
+            name: input.name,
+          },
+        });
+
+        await categorySeedService.seedDefaultsForUser(created.id, tx);
+        return created;
       });
 
       return issueAuthResult(user);
@@ -97,6 +106,8 @@ export const authService = {
     if (!user || !passwordMatches) {
       throw new UnauthorizedError("Invalid email or password");
     }
+
+    await categorySeedService.seedDefaultsIfEmpty(user.id);
 
     return issueAuthResult(user);
   },

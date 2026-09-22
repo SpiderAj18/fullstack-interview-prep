@@ -82,6 +82,11 @@ Infrastructure defaults:
 | GET | `/api/v1/auth/me` | Yes | Get current user profile |
 | PATCH | `/api/v1/auth/me` | Yes | Update profile (`name`) |
 | POST | `/api/v1/auth/change-password` | Yes | Change password (`204`; revokes refresh sessions) |
+| GET | `/api/v1/categories` | Yes | List category tree (`?type=&includeArchived=`) |
+| POST | `/api/v1/categories` | Yes | Create custom category |
+| PATCH | `/api/v1/categories/:id` | Yes | Update name/color/icon/sortOrder |
+| POST | `/api/v1/categories/:id/archive` | Yes | Soft-archive category |
+| POST | `/api/v1/categories/:id/unarchive` | Yes | Restore archived category |
 
 \* Logout uses the refresh token in the body, not the access token.
 
@@ -103,14 +108,15 @@ Collection variables:
 ## Data Model
 
 - **User** — account with email/password
-- **Category** — user-owned expense categories
+- **Category** — expense/income, system + custom, one-level hierarchy, archive lifecycle
 - **Expense** — amount (`Decimal(12,2)`), date, optional category, owned by user
 
 ## Next Steps
 
-1. Category CRUD
+1. Account management
 2. Expense CRUD with pagination and filters
-3. Frontend integration
+3. Income / transfers
+4. Frontend integration
 
 ## Error Format
 

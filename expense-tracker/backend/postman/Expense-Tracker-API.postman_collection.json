@@ -18,6 +18,10 @@
       "value": ""
     },
     {
+      "key": "categoryId",
+      "value": ""
+    },
+    {
       "key": "userEmail",
       "value": "jane@example.com"
     },
@@ -288,6 +292,105 @@
             },
             "url": "{{baseUrl}}/api/v1/auth/refresh",
             "description": "Negative: expects 401 UNAUTHORIZED."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/categories"
+          }
+        },
+        {
+          "name": "List Expense Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/categories?type=EXPENSE"
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pets\",\n  \"type\": \"EXPENSE\",\n  \"color\": \"#7C3AED\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/categories"
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pet Care\",\n  \"color\": \"#6D28D9\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/categories/{{categoryId}}"
+          }
+        },
+        {
+          "name": "Archive Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/categories/{{categoryId}}/archive"
+          }
+        },
+        {
+          "name": "Unarchive Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/categories/{{categoryId}}/unarchive"
           }
         }
       ]
