@@ -112,6 +112,14 @@ Infrastructure defaults:
 | POST | `/api/v1/transfers/:id/archive` | Yes | Soft-archive transfer (reverses both legs) |
 | POST | `/api/v1/transfers/:id/unarchive` | Yes | Restore archived transfer |
 | GET | `/api/v1/transactions` | Yes | Unified expense/income/transfer history |
+| GET | `/api/v1/budgets` | Yes | List budgets (`?year=&month=`) |
+| POST | `/api/v1/budgets` | Yes | Create monthly budget + category limits |
+| GET | `/api/v1/budgets/:id` | Yes | Budget detail with utilization |
+| PATCH | `/api/v1/budgets/:id` | Yes | Update limits / thresholds / categories |
+| POST | `/api/v1/budgets/:id/archive` | Yes | Soft-archive budget |
+| POST | `/api/v1/budgets/:id/unarchive` | Yes | Restore archived budget |
+| GET | `/api/v1/budgets/:id/alerts` | Yes | List budget alerts |
+| POST | `/api/v1/budgets/:id/alerts/:alertId/acknowledge` | Yes | Acknowledge alert |
 
 \* Logout uses the refresh token in the body, not the access token.
 
@@ -138,10 +146,11 @@ Collection variables:
 - **Expense** — amount (`Decimal(12,2)`), required account + EXPENSE category, soft archive, balance-linked
 - **Income** — amount (`Decimal(12,2)`), required account + INCOME category, soft archive, balance-linked
 - **Transfer** — amount between `fromAccountId`/`toAccountId`, not spending, soft archive, balance-linked
+- **Budget** — monthly total + category limits, utilization, threshold alerts
 
 ## Next Steps
 
-1. Monthly / category budgets
+1. Recurring transactions / subscriptions (Phase 4)
 2. Frontend integration
 
 ## Error Format

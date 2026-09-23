@@ -6,6 +6,7 @@ import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { requestIdMiddleware, requestLogger } from "./middleware/requestContext";
 import { accountRouter } from "./routes/accountRoutes";
 import { authRouter } from "./routes/authRoutes";
+import { budgetRouter } from "./routes/budgetRoutes";
 import { categoryRouter } from "./routes/categoryRoutes";
 import { expenseRouter } from "./routes/expenseRoutes";
 import { healthRouter } from "./routes/healthRoutes";
@@ -43,6 +44,7 @@ export function createApp() {
   app.use("/api/v1/incomes", incomeRouter);
   app.use("/api/v1/transfers", transferRouter);
   app.use("/api/v1/transactions", transactionRouter);
+  app.use("/api/v1/budgets", budgetRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

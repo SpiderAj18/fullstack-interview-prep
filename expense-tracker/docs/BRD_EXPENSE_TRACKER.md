@@ -1719,10 +1719,10 @@ Update this section after every completed feature.
   FEAT-013 Income                   COMPLETED
   FEAT-014 Transfers                COMPLETED
   FEAT-015 Transaction History      COMPLETED
-  FEAT-020 Monthly Budget           PLANNED
-  FEAT-021 Category Budget          PLANNED
-  FEAT-022 Budget Utilization       PLANNED
-  FEAT-023 Budget Alerts            PLANNED
+  FEAT-020 Monthly Budget           COMPLETED
+  FEAT-021 Category Budget          COMPLETED
+  FEAT-022 Budget Utilization       COMPLETED
+  FEAT-023 Budget Alerts            COMPLETED
   FEAT-030 Recurring Transactions   PLANNED
   FEAT-031 Recurring Worker         PLANNED
   FEAT-032 Subscriptions            PLANNED

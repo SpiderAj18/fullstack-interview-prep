@@ -12,6 +12,9 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
+  await prisma.budgetAlert.deleteMany();
+  await prisma.budgetCategory.deleteMany();
+  await prisma.budget.deleteMany();
   await prisma.user.deleteMany();
   await redis.flushDb();
 });

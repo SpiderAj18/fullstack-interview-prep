@@ -38,6 +38,10 @@
       "value": ""
     },
     {
+      "key": "budgetId",
+      "value": ""
+    },
+    {
       "key": "userEmail",
       "value": "jane@example.com"
     },
@@ -859,6 +863,71 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/transactions?accountId={{accountId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Budgets",
+      "item": [
+        {
+          "name": "List Budgets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/budgets?year=2026&month=9"
+          }
+        },
+        {
+          "name": "Create Budget",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"year\": 2026,\n  \"month\": 9,\n  \"totalLimit\": \"45000.00\",\n  \"warningThreshold\": 80,\n  \"criticalThreshold\": 90,\n  \"categories\": [\n    { \"categoryId\": \"{{categoryId}}\", \"limitAmount\": \"8000.00\" }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/budgets"
+          }
+        },
+        {
+          "name": "Get Budget",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/budgets/{{budgetId}}"
+          }
+        },
+        {
+          "name": "List Budget Alerts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/budgets/{{budgetId}}/alerts"
           }
         }
       ]

@@ -41,6 +41,7 @@ model User {
   transfers    Transfer[]
   categories   Category[]
   accounts     Account[]
+  budgets      Budget[]
 }
 
 model Category {
@@ -59,6 +60,7 @@ model Category {
   children   Category[]   @relation("CategoryTree")
   expenses   Expense[]
   incomes    Income[]
+  budgetCategories BudgetCategory[]
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
 
@@ -163,4 +165,66 @@ model Transfer {
   @@index([userId, fromAccountId, transactionDate])
   @@index([userId, toAccountId, transactionDate])
   @@index([userId, archivedAt])
+}
+
+enum BudgetAlertStatus {
+  WARNING
+  CRITICAL
+  EXCEEDED
+}
+
+model Budget {
+  id                 String           @id @default(cuid())
+  year               Int
+  month              Int
+  totalLimit         Decimal          @db.Decimal(12, 2)
+  currency           String           @default("INR")
+  warningThreshold   Int              @default(80)
+  criticalThreshold  Int              @default(90)
+  archivedAt         DateTime?
+  userId             String
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categories         BudgetCategory[]
+  alerts             BudgetAlert[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@unique([userId, year, month])
+  @@index([userId, year, month])
+  @@index([userId, archivedAt])
+}
+
+model BudgetCategory {
+  id         String   @id @default(cuid())
+  limitAmount Decimal @db.Decimal(12, 2)
+  budgetId   String
+  categoryId String
+  budget     Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([budgetId, categoryId])
+  @@index([budgetId])
+  @@index([categoryId])
+}
+
+model BudgetAlert {
+  id          String            @id @default(cuid())
+  threshold   Int
+  status      BudgetAlertStatus
+  scope       String
+  message     String
+  percentage  Decimal           @db.Decimal(7, 2)
+  spent       Decimal           @db.Decimal(12, 2)
+  limitAmount Decimal           @db.Decimal(12, 2)
+  categoryId  String?
+  acknowledgedAt DateTime?
+  budgetId    String
+  budget      Budget            @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([budgetId, scope, threshold])
+  @@index([budgetId, acknowledgedAt])
 }
