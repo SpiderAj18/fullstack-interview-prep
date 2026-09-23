@@ -105,6 +105,13 @@ Infrastructure defaults:
 | PATCH | `/api/v1/incomes/:id` | Yes | Update income (rebalances if needed) |
 | POST | `/api/v1/incomes/:id/archive` | Yes | Soft-archive income (reverses credit) |
 | POST | `/api/v1/incomes/:id/unarchive` | Yes | Restore archived income |
+| GET | `/api/v1/transfers` | Yes | List transfers (filters + pagination) |
+| GET | `/api/v1/transfers/:id` | Yes | Get transfer detail |
+| POST | `/api/v1/transfers` | Yes | Create transfer (debit/credit; optional Idempotency-Key) |
+| PATCH | `/api/v1/transfers/:id` | Yes | Update transfer (rebalances if needed) |
+| POST | `/api/v1/transfers/:id/archive` | Yes | Soft-archive transfer (reverses both legs) |
+| POST | `/api/v1/transfers/:id/unarchive` | Yes | Restore archived transfer |
+| GET | `/api/v1/transactions` | Yes | Unified expense/income/transfer history |
 
 \* Logout uses the refresh token in the body, not the access token.
 
@@ -130,10 +137,11 @@ Collection variables:
 - **Account** — bank/cash/cards/wallet/UPI, opening + current balance (`Decimal(12,2)`), archive lifecycle
 - **Expense** — amount (`Decimal(12,2)`), required account + EXPENSE category, soft archive, balance-linked
 - **Income** — amount (`Decimal(12,2)`), required account + INCOME category, soft archive, balance-linked
+- **Transfer** — amount between `fromAccountId`/`toAccountId`, not spending, soft archive, balance-linked
 
 ## Next Steps
 
-1. Transfers
+1. Monthly / category budgets
 2. Frontend integration
 
 ## Error Format

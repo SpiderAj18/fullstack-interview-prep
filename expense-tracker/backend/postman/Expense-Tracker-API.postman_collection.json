@@ -34,6 +34,10 @@
       "value": ""
     },
     {
+      "key": "transferId",
+      "value": ""
+    },
+    {
       "key": "userEmail",
       "value": "jane@example.com"
     },
@@ -708,6 +712,153 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/incomes/{{incomeId}}/unarchive"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transfers",
+      "item": [
+        {
+          "name": "List Transfers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/transfers?page=1&limit=20"
+          }
+        },
+        {
+          "name": "Get Transfer",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/transfers/{{transferId}}"
+          }
+        },
+        {
+          "name": "Create Transfer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "transfer-create-1"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"10000.00\",\n  \"fromAccountId\": \"{{accountId}}\",\n  \"toAccountId\": \"{{accountId}}\",\n  \"description\": \"ATM cash\",\n  \"transactionDate\": \"2026-09-23\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/transfers"
+          }
+        },
+        {
+          "name": "Update Transfer",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"12000.00\",\n  \"description\": \"ATM cash adjusted\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/transfers/{{transferId}}"
+          }
+        },
+        {
+          "name": "Archive Transfer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/transfers/{{transferId}}/archive"
+          }
+        },
+        {
+          "name": "Unarchive Transfer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/transfers/{{transferId}}/unarchive"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "List Transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/transactions?page=1&limit=20"
+          }
+        },
+        {
+          "name": "List Expenses Only",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/transactions?type=EXPENSE"
+          }
+        },
+        {
+          "name": "Filter by Account",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/transactions?accountId={{accountId}}"
           }
         }
       ]

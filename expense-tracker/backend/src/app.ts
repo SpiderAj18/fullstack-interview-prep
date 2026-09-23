@@ -10,6 +10,8 @@ import { categoryRouter } from "./routes/categoryRoutes";
 import { expenseRouter } from "./routes/expenseRoutes";
 import { healthRouter } from "./routes/healthRoutes";
 import { incomeRouter } from "./routes/incomeRoutes";
+import { transactionRouter } from "./routes/transactionRoutes";
+import { transferRouter } from "./routes/transferRoutes";
 
 export function createApp() {
   const app = express();
@@ -39,6 +41,8 @@ export function createApp() {
   app.use("/api/v1/accounts", accountRouter);
   app.use("/api/v1/expenses", expenseRouter);
   app.use("/api/v1/incomes", incomeRouter);
+  app.use("/api/v1/transfers", transferRouter);
+  app.use("/api/v1/transactions", transactionRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

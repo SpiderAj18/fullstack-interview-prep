@@ -142,3 +142,25 @@ model Income {
   @@index([userId, categoryId, transactionDate])
   @@index([userId, archivedAt])
 }
+
+model Transfer {
+  id              String   @id @default(cuid())
+  amount          Decimal  @db.Decimal(12, 2)
+  description     String?
+  notes           String?
+  transactionDate DateTime
+  archivedAt      DateTime?
+  userId          String
+  fromAccountId   String
+  toAccountId     String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fromAccount     Account  @relation("TransferFromAccount", fields: [fromAccountId], references: [id], onDelete: Restrict)
+  toAccount       Account  @relation("TransferToAccount", fields: [toAccountId], references: [id], onDelete: Restrict)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, transactionDate])
+  @@index([userId, fromAccountId, transactionDate])
+  @@index([userId, toAccountId, transactionDate])
+  @@index([userId, archivedAt])
+}
