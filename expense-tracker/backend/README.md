@@ -87,6 +87,12 @@ Infrastructure defaults:
 | PATCH | `/api/v1/categories/:id` | Yes | Update name/color/icon/sortOrder |
 | POST | `/api/v1/categories/:id/archive` | Yes | Soft-archive category |
 | POST | `/api/v1/categories/:id/unarchive` | Yes | Restore archived category |
+| GET | `/api/v1/accounts` | Yes | List accounts (`?type=&includeArchived=`) |
+| GET | `/api/v1/accounts/:id` | Yes | Get account detail + balances |
+| POST | `/api/v1/accounts` | Yes | Create account |
+| PATCH | `/api/v1/accounts/:id` | Yes | Update name/color/icon/sortOrder |
+| POST | `/api/v1/accounts/:id/archive` | Yes | Soft-archive account |
+| POST | `/api/v1/accounts/:id/unarchive` | Yes | Restore archived account |
 
 \* Logout uses the refresh token in the body, not the access token.
 
@@ -109,14 +115,14 @@ Collection variables:
 
 - **User** — account with email/password
 - **Category** — expense/income, system + custom, one-level hierarchy, archive lifecycle
+- **Account** — bank/cash/cards/wallet/UPI, opening + current balance (`Decimal(12,2)`), archive lifecycle
 - **Expense** — amount (`Decimal(12,2)`), date, optional category, owned by user
 
 ## Next Steps
 
-1. Account management
-2. Expense CRUD with pagination and filters
-3. Income / transfers
-4. Frontend integration
+1. Expense CRUD with pagination and filters
+2. Income / transfers
+3. Frontend integration
 
 ## Error Format
 

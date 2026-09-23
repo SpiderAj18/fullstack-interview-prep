@@ -22,6 +22,10 @@
       "value": ""
     },
     {
+      "key": "accountId",
+      "value": ""
+    },
+    {
       "key": "userEmail",
       "value": "jane@example.com"
     },
@@ -391,6 +395,105 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/categories/{{categoryId}}/unarchive"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Accounts",
+      "item": [
+        {
+          "name": "List Accounts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/accounts"
+          }
+        },
+        {
+          "name": "Get Account",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/accounts/{{accountId}}"
+          }
+        },
+        {
+          "name": "Create Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"HDFC Savings\",\n  \"type\": \"BANK\",\n  \"openingBalance\": \"15000.00\",\n  \"currency\": \"INR\",\n  \"color\": \"#1D4ED8\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/accounts"
+          }
+        },
+        {
+          "name": "Update Account",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"HDFC Salary\",\n  \"color\": \"#1E40AF\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/accounts/{{accountId}}"
+          }
+        },
+        {
+          "name": "Archive Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/accounts/{{accountId}}/archive"
+          }
+        },
+        {
+          "name": "Unarchive Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/accounts/{{accountId}}/unarchive"
           }
         }
       ]

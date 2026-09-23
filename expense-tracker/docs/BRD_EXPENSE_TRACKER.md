@@ -1714,7 +1714,7 @@ Update this section after every completed feature.
   FEAT-005 Password Recovery        PLANNED
   FEAT-006 Profile                  COMPLETED
   FEAT-010 Categories               COMPLETED
-  FEAT-011 Accounts                 PLANNED
+  FEAT-011 Accounts                 COMPLETED
   FEAT-012 Expenses                 PLANNED
   FEAT-013 Income                   PLANNED
   FEAT-014 Transfers                PLANNED

@@ -6,6 +6,7 @@ import { prisma } from "../config/database";
 import { ConflictError, UnauthorizedError } from "../utils/errors";
 import { comparePassword, DUMMY_PASSWORD_HASH, hashPassword } from "../utils/password";
 import type { LoginBody, RegisterBody } from "../validators/authSchemas";
+import { accountSeedService } from "./accountSeedService";
 import { categorySeedService } from "./categorySeedService";
 
 export type AuthUser = {
@@ -78,6 +79,7 @@ export const authService = {
         });
 
         await categorySeedService.seedDefaultsForUser(created.id, tx);
+        await accountSeedService.seedDefaultsForUser(created.id, tx);
         return created;
       });
 
@@ -108,6 +110,7 @@ export const authService = {
     }
 
     await categorySeedService.seedDefaultsIfEmpty(user.id);
+    await accountSeedService.seedDefaultsIfEmpty(user.id);
 
     return issueAuthResult(user);
   },

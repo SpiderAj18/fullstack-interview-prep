@@ -12,6 +12,15 @@ enum CategoryType {
   INCOME
 }
 
+enum AccountType {
+  BANK
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  WALLET
+  UPI
+}
+
 model User {
   id           String     @id @default(cuid())
   email        String     @unique
@@ -21,6 +30,7 @@ model User {
   updatedAt    DateTime   @updatedAt
   expenses     Expense[]
   categories   Category[]
+  accounts     Account[]
 }
 
 model Category {
@@ -44,6 +54,28 @@ model Category {
   @@index([userId, type, archivedAt])
   @@index([userId, parentId])
   @@index([userId, type, name])
+}
+
+model Account {
+  id             String      @id @default(cuid())
+  name           String
+  type           AccountType
+  currency       String      @default("INR")
+  color          String?
+  icon           String?
+  sortOrder      Int         @default(0)
+  openingBalance Decimal     @default(0) @db.Decimal(12, 2)
+  currentBalance Decimal     @default(0) @db.Decimal(12, 2)
+  isSystem       Boolean     @default(false)
+  archivedAt     DateTime?
+  userId         String
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@unique([userId, name])
+  @@index([userId, archivedAt])
+  @@index([userId, type])
 }
 
 model Expense {
