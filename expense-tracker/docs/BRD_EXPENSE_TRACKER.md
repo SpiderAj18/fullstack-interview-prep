@@ -1716,7 +1716,7 @@ Update this section after every completed feature.
   FEAT-010 Categories               COMPLETED
   FEAT-011 Accounts                 COMPLETED
   FEAT-012 Expenses                 COMPLETED
-  FEAT-013 Income                   PLANNED
+  FEAT-013 Income                   COMPLETED
   FEAT-014 Transfers                PLANNED
   FEAT-015 Transaction History      PLANNED
   FEAT-020 Monthly Budget           PLANNED

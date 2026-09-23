@@ -30,6 +30,10 @@
       "value": ""
     },
     {
+      "key": "incomeId",
+      "value": ""
+    },
+    {
       "key": "userEmail",
       "value": "jane@example.com"
     },
@@ -601,6 +605,109 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/expenses/{{expenseId}}/unarchive"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Incomes",
+      "item": [
+        {
+          "name": "List Incomes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/incomes?page=1&limit=20"
+          }
+        },
+        {
+          "name": "Get Income",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/incomes/{{incomeId}}"
+          }
+        },
+        {
+          "name": "Create Income",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "income-create-1"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"50000.00\",\n  \"accountId\": \"{{accountId}}\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"source\": \"Acme Corp\",\n  \"description\": \"September salary\",\n  \"transactionDate\": \"2026-09-01\",\n  \"paymentMethod\": \"NET_BANKING\",\n  \"tags\": [\"payroll\"]\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/incomes"
+          }
+        },
+        {
+          "name": "Update Income",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"52000.00\",\n  \"source\": \"Acme Corp Bonus\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/incomes/{{incomeId}}"
+          }
+        },
+        {
+          "name": "Archive Income",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/incomes/{{incomeId}}/archive"
+          }
+        },
+        {
+          "name": "Unarchive Income",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/incomes/{{incomeId}}/unarchive"
           }
         }
       ]

@@ -99,6 +99,12 @@ Infrastructure defaults:
 | PATCH | `/api/v1/expenses/:id` | Yes | Update expense (rebalances if needed) |
 | POST | `/api/v1/expenses/:id/archive` | Yes | Soft-archive expense (reverses debit) |
 | POST | `/api/v1/expenses/:id/unarchive` | Yes | Restore archived expense |
+| GET | `/api/v1/incomes` | Yes | List incomes (filters + pagination) |
+| GET | `/api/v1/incomes/:id` | Yes | Get income detail |
+| POST | `/api/v1/incomes` | Yes | Create income (credits account; optional Idempotency-Key) |
+| PATCH | `/api/v1/incomes/:id` | Yes | Update income (rebalances if needed) |
+| POST | `/api/v1/incomes/:id/archive` | Yes | Soft-archive income (reverses credit) |
+| POST | `/api/v1/incomes/:id/unarchive` | Yes | Restore archived income |
 
 \* Logout uses the refresh token in the body, not the access token.
 
@@ -123,10 +129,11 @@ Collection variables:
 - **Category** — expense/income, system + custom, one-level hierarchy, archive lifecycle
 - **Account** — bank/cash/cards/wallet/UPI, opening + current balance (`Decimal(12,2)`), archive lifecycle
 - **Expense** — amount (`Decimal(12,2)`), required account + EXPENSE category, soft archive, balance-linked
+- **Income** — amount (`Decimal(12,2)`), required account + INCOME category, soft archive, balance-linked
 
 ## Next Steps
 
-1. Income / transfers
+1. Transfers
 2. Frontend integration
 
 ## Error Format

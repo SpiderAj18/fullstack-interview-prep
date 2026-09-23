@@ -9,6 +9,7 @@ import { authRouter } from "./routes/authRoutes";
 import { categoryRouter } from "./routes/categoryRoutes";
 import { expenseRouter } from "./routes/expenseRoutes";
 import { healthRouter } from "./routes/healthRoutes";
+import { incomeRouter } from "./routes/incomeRoutes";
 
 export function createApp() {
   const app = express();
@@ -37,6 +38,7 @@ export function createApp() {
   app.use("/api/v1/categories", categoryRouter);
   app.use("/api/v1/accounts", accountRouter);
   app.use("/api/v1/expenses", expenseRouter);
+  app.use("/api/v1/incomes", incomeRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
