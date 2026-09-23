@@ -7,6 +7,7 @@ import { requestIdMiddleware, requestLogger } from "./middleware/requestContext"
 import { accountRouter } from "./routes/accountRoutes";
 import { authRouter } from "./routes/authRoutes";
 import { categoryRouter } from "./routes/categoryRoutes";
+import { expenseRouter } from "./routes/expenseRoutes";
 import { healthRouter } from "./routes/healthRoutes";
 
 export function createApp() {
@@ -35,6 +36,7 @@ export function createApp() {
   app.use("/api/v1/auth", authRouter);
   app.use("/api/v1/categories", categoryRouter);
   app.use("/api/v1/accounts", accountRouter);
+  app.use("/api/v1/expenses", expenseRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

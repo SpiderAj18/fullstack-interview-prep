@@ -26,6 +26,10 @@
       "value": ""
     },
     {
+      "key": "expenseId",
+      "value": ""
+    },
+    {
       "key": "userEmail",
       "value": "jane@example.com"
     },
@@ -494,6 +498,109 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/accounts/{{accountId}}/unarchive"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Expenses",
+      "item": [
+        {
+          "name": "List Expenses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/expenses?page=1&limit=20"
+          }
+        },
+        {
+          "name": "Get Expense",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/expenses/{{expenseId}}"
+          }
+        },
+        {
+          "name": "Create Expense",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "expense-create-1"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"250.00\",\n  \"accountId\": \"{{accountId}}\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"merchant\": \"Swiggy\",\n  \"description\": \"Lunch\",\n  \"transactionDate\": \"2026-09-23\",\n  \"paymentMethod\": \"UPI\",\n  \"tags\": [\"food\"]\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/expenses"
+          }
+        },
+        {
+          "name": "Update Expense",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"275.00\",\n  \"merchant\": \"Swiggy Instamart\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/expenses/{{expenseId}}"
+          }
+        },
+        {
+          "name": "Archive Expense",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/expenses/{{expenseId}}/archive"
+          }
+        },
+        {
+          "name": "Unarchive Expense",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/expenses/{{expenseId}}/unarchive"
           }
         }
       ]

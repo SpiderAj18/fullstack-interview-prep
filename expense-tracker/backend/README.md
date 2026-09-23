@@ -93,6 +93,12 @@ Infrastructure defaults:
 | PATCH | `/api/v1/accounts/:id` | Yes | Update name/color/icon/sortOrder |
 | POST | `/api/v1/accounts/:id/archive` | Yes | Soft-archive account |
 | POST | `/api/v1/accounts/:id/unarchive` | Yes | Restore archived account |
+| GET | `/api/v1/expenses` | Yes | List expenses (filters + pagination) |
+| GET | `/api/v1/expenses/:id` | Yes | Get expense detail |
+| POST | `/api/v1/expenses` | Yes | Create expense (debits account; optional Idempotency-Key) |
+| PATCH | `/api/v1/expenses/:id` | Yes | Update expense (rebalances if needed) |
+| POST | `/api/v1/expenses/:id/archive` | Yes | Soft-archive expense (reverses debit) |
+| POST | `/api/v1/expenses/:id/unarchive` | Yes | Restore archived expense |
 
 \* Logout uses the refresh token in the body, not the access token.
 
@@ -116,13 +122,12 @@ Collection variables:
 - **User** — account with email/password
 - **Category** — expense/income, system + custom, one-level hierarchy, archive lifecycle
 - **Account** — bank/cash/cards/wallet/UPI, opening + current balance (`Decimal(12,2)`), archive lifecycle
-- **Expense** — amount (`Decimal(12,2)`), date, optional category, owned by user
+- **Expense** — amount (`Decimal(12,2)`), required account + EXPENSE category, soft archive, balance-linked
 
 ## Next Steps
 
-1. Expense CRUD with pagination and filters
-2. Income / transfers
-3. Frontend integration
+1. Income / transfers
+2. Frontend integration
 
 ## Error Format
 

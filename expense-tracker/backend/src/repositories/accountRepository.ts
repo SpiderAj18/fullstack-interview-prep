@@ -105,4 +105,20 @@ export const accountRepository = {
       data: { archivedAt: null },
     });
   },
+
+  async adjustBalance(
+    id: string,
+    delta: Prisma.Decimal | string | number,
+    tx?: Prisma.TransactionClient,
+  ): Promise<Account> {
+    const client = tx ?? prisma;
+    return client.account.update({
+      where: { id },
+      data: {
+        currentBalance: {
+          increment: delta,
+        },
+      },
+    });
+  },
 };
