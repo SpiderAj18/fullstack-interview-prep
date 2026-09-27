@@ -1,0 +1,16 @@
+import { configureStore } from "@reduxjs/toolkit";
+import { preferencesReducer } from "./preferencesSlice";
+import { uiReducer } from "./uiSlice";
+
+export function makeStore() {
+  return configureStore({
+    reducer: {
+      ui: uiReducer,
+      preferences: preferencesReducer,
+    },
+  });
+}
+
+export type AppStore = ReturnType<typeof makeStore>;
+export type RootState = ReturnType<AppStore["getState"]>;
+export type AppDispatch = AppStore["dispatch"];

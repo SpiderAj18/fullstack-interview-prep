@@ -14,7 +14,7 @@ export default defineConfig({
       JWT_SECRET: "test-secret-at-least-16-chars",
       JWT_ACCESS_EXPIRES_IN: "15m",
       JWT_REFRESH_EXPIRES_IN: "7d",
-      CORS_ORIGIN: "http://localhost:5173",
+      CORS_ORIGIN: "http://localhost:3000",
     },
   },
 });
