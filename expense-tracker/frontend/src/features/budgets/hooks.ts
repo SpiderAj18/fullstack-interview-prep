@@ -2,9 +2,17 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { budgetsApi } from "@/features/budgets/api/budgets.api";
+import {
+  budgetsApi,
+  type UpdateBudgetInput,
+} from "@/features/budgets/api/budgets.api";
 import { getErrorMessage } from "@/lib/api/client";
 import { queryKeys } from "@/lib/query/keys";
+
+async function invalidateBudgets(queryClient: ReturnType<typeof useQueryClient>) {
+  await queryClient.invalidateQueries({ queryKey: ["budgets"] });
+  await queryClient.invalidateQueries({ queryKey: ["budget"] });
+}
 
 export function useBudgets(year?: number, month?: number) {
   return useQuery({
@@ -26,8 +34,33 @@ export function useCreateBudget() {
   return useMutation({
     mutationFn: budgetsApi.create,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["budgets"] });
+      await invalidateBudgets(queryClient);
       toast.success("Budget created");
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
+
+export function useUpdateBudget(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: UpdateBudgetInput) => budgetsApi.update(id, body),
+    onSuccess: async (budget) => {
+      queryClient.setQueryData(queryKeys.budgets.detail(id), budget);
+      await invalidateBudgets(queryClient);
+      toast.success("Budget updated");
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
+
+export function useArchiveBudget() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: budgetsApi.archive,
+    onSuccess: async () => {
+      await invalidateBudgets(queryClient);
+      toast.success("Budget archived");
     },
     onError: (error) => toast.error(getErrorMessage(error)),
   });

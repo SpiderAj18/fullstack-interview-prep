@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Wallet } from "lucide-react";
+import { ChevronRight, Wallet } from "lucide-react";
 import { z } from "zod";
 import { AmountDisplay } from "@/components/feedback/CurrencyDisplay";
 import { EmptyState } from "@/components/feedback/EmptyState";
@@ -16,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { useAccounts, useArchiveAccount, useCreateAccount } from "@/features/accounts/hooks";
+import { useAccounts, useCreateAccount } from "@/features/accounts/hooks";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required").max(100),
@@ -29,7 +30,6 @@ type FormValues = z.infer<typeof schema>;
 export default function AccountsPage() {
   const { data: accounts = [], isLoading } = useAccounts();
   const createAccount = useCreateAccount();
-  const archiveAccount = useArchiveAccount();
   const [showForm, setShowForm] = useState(false);
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -80,7 +80,11 @@ export default function AccountsPage() {
                   label="Opening balance"
                   error={form.formState.errors.openingBalance?.message}
                 >
-                  <Input id="openingBalance" inputMode="decimal" {...form.register("openingBalance")} />
+                  <Input
+                    id="openingBalance"
+                    inputMode="decimal"
+                    {...form.register("openingBalance")}
+                  />
                 </Field>
                 <div className="sm:col-span-3">
                   <Button type="submit" disabled={createAccount.isPending} className="w-full sm:w-auto">
@@ -106,33 +110,30 @@ export default function AccountsPage() {
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {accounts.map((account, index) => (
-          <Card
+          <Link
             key={account.id}
-            className="animate-fade-up transition-transform duration-200 hover:-translate-y-0.5"
+            href={`/accounts/${account.id}`}
+            className="block animate-fade-up transition-transform duration-200 hover:-translate-y-0.5"
             style={{ animationDelay: `${index * 40}ms` }}
           >
-            <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
-              <div className="min-w-0">
-                <CardTitle className="truncate">{account.name}</CardTitle>
-                <p className="mt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  {account.type.replaceAll("_", " ")}
-                </p>
-              </div>
-              {!account.isSystem && !account.archivedAt && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={archiveAccount.isPending}
-                  onClick={() => archiveAccount.mutate(account.id)}
-                >
-                  Archive
-                </Button>
-              )}
-            </CardHeader>
-            <CardContent>
-              <AmountDisplay amount={account.currentBalance} className="text-2xl font-bold" />
-            </CardContent>
-          </Card>
+            <Card className="h-full">
+              <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
+                <div className="min-w-0">
+                  <CardTitle className="truncate">{account.name}</CardTitle>
+                  <p className="mt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {account.type.replaceAll("_", " ")}
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+              </CardHeader>
+              <CardContent>
+                <AmountDisplay amount={account.currentBalance} className="text-2xl font-bold" />
+                {account.archivedAt ? (
+                  <p className="mt-2 text-xs text-muted-foreground">Archived</p>
+                ) : null}
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
     </PageContainer>

@@ -1603,7 +1603,7 @@ FE-F20  Category Management             COMPLETED
 
 Accounts
 FE-F30  Account Management              COMPLETED
-FE-F31  Account Details                 PLANNED
+FE-F31  Account Details                 COMPLETED
 
 Transactions
 FE-F40  Transaction List                COMPLETED
@@ -1615,7 +1615,7 @@ FE-F45  Transfers                       COMPLETED
 
 Budgets
 FE-F50  Monthly Budget                  COMPLETED
-FE-F51  Category Budget                 PLANNED
+FE-F51  Category Budget                 COMPLETED
 FE-F52  Budget Status                   COMPLETED
 FE-F53  Budget Alerts                   COMPLETED
 

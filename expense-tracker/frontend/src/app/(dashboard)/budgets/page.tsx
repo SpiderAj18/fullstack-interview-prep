@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PiggyBank } from "lucide-react";
-import { z } from "zod";
+import { ChevronRight, PiggyBank, Plus, Trash2 } from "lucide-react";
 import { AmountDisplay, PercentageDisplay } from "@/components/feedback/CurrencyDisplay";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { SkeletonRows } from "@/components/feedback/Skeleton";
@@ -16,22 +16,20 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { useCategories } from "@/features/categories/hooks";
 import {
   useAcknowledgeAlert,
   useBudgetAlerts,
   useBudgets,
   useCreateBudget,
 } from "@/features/budgets/hooks";
-
-const schema = z.object({
-  year: z.coerce.number().int().min(2000).max(2100),
-  month: z.coerce.number().int().min(1).max(12),
-  totalLimit: z.string().regex(/^\d+(\.\d{1,2})?$/, "Use amount like 1000.00"),
-  warningThreshold: z.coerce.number().min(1).max(100).optional(),
-  criticalThreshold: z.coerce.number().min(1).max(100).optional(),
-});
-
-type FormValues = z.infer<typeof schema>;
+import {
+  categoryNameMap,
+  createBudgetSchema,
+  flattenExpenseCategories,
+  type CreateBudgetFormValues,
+} from "@/features/budgets/schemas";
 
 function BudgetAlerts({ budgetId }: { budgetId: string }) {
   const { data: alerts = [] } = useBudgetAlerts(budgetId);
@@ -73,23 +71,41 @@ export default function BudgetsPage() {
   const [year, setYear] = useState(now.getUTCFullYear());
   const [month, setMonth] = useState(now.getUTCMonth() + 1);
   const { data: budgets = [], isLoading } = useBudgets(year, month);
+  const { data: categories = [] } = useCategories("EXPENSE");
+  const expenseCategories = useMemo(() => flattenExpenseCategories(categories), [categories]);
+  const names = useMemo(() => categoryNameMap(categories), [categories]);
   const createBudget = useCreateBudget();
   const [showForm, setShowForm] = useState(false);
-  const form = useForm<FormValues>({
-    resolver: zodResolver(schema),
+
+  const form = useForm<CreateBudgetFormValues>({
+    resolver: zodResolver(createBudgetSchema),
     defaultValues: {
       year,
       month,
       totalLimit: "1000.00",
       warningThreshold: 80,
       criticalThreshold: 95,
+      categories: [],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "categories",
   });
 
   const onSubmit = form.handleSubmit(async (values) => {
     await createBudget.mutateAsync(values);
     setYear(values.year);
     setMonth(values.month);
+    form.reset({
+      year: values.year,
+      month: values.month,
+      totalLimit: "1000.00",
+      warningThreshold: 80,
+      criticalThreshold: 95,
+      categories: [],
+    });
     setShowForm(false);
   });
 
@@ -97,7 +113,7 @@ export default function BudgetsPage() {
     <PageContainer>
       <PageHeader
         title="Budgets"
-        description="Monthly limits with live utilization and alerts from the API."
+        description="Monthly limits with category caps, utilization, and alerts."
         actions={
           <Button className="w-full sm:w-auto" onClick={() => setShowForm((v) => !v)}>
             {showForm ? "Cancel" : "Create budget"}
@@ -133,27 +149,101 @@ export default function BudgetsPage() {
               <CardTitle>New monthly budget</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <Field id="year" label="Year">
-                  <Input type="number" {...form.register("year")} />
-                </Field>
-                <Field id="month" label="Month">
-                  <Input type="number" min={1} max={12} {...form.register("month")} />
-                </Field>
-                <Field id="totalLimit" label="Total limit">
-                  <Input inputMode="decimal" {...form.register("totalLimit")} />
-                </Field>
-                <Field id="warningThreshold" label="Warning %">
-                  <Input type="number" {...form.register("warningThreshold")} />
-                </Field>
-                <Field id="criticalThreshold" label="Critical %">
-                  <Input type="number" {...form.register("criticalThreshold")} />
-                </Field>
-                <div className="sm:col-span-2 lg:col-span-3">
-                  <Button type="submit" disabled={createBudget.isPending} className="w-full sm:w-auto">
-                    {createBudget.isPending ? "Creating…" : "Create budget"}
-                  </Button>
+              <form onSubmit={onSubmit} className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <Field id="year" label="Year">
+                    <Input type="number" {...form.register("year")} />
+                  </Field>
+                  <Field id="month" label="Month">
+                    <Input type="number" min={1} max={12} {...form.register("month")} />
+                  </Field>
+                  <Field
+                    id="totalLimit"
+                    label="Total limit"
+                    error={form.formState.errors.totalLimit?.message}
+                  >
+                    <Input inputMode="decimal" {...form.register("totalLimit")} />
+                  </Field>
+                  <Field
+                    id="warningThreshold"
+                    label="Warning %"
+                    error={form.formState.errors.warningThreshold?.message}
+                  >
+                    <Input type="number" {...form.register("warningThreshold")} />
+                  </Field>
+                  <Field
+                    id="criticalThreshold"
+                    label="Critical %"
+                    error={form.formState.errors.criticalThreshold?.message}
+                  >
+                    <Input type="number" {...form.register("criticalThreshold")} />
+                  </Field>
                 </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold">Category limits</p>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        append({
+                          categoryId: expenseCategories[0]?.id || "",
+                          limitAmount: "100.00",
+                        })
+                      }
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add
+                    </Button>
+                  </div>
+                  {form.formState.errors.categories?.message ||
+                  form.formState.errors.categories?.root?.message ? (
+                    <p className="text-xs font-medium text-destructive" role="alert">
+                      {form.formState.errors.categories.message ||
+                        form.formState.errors.categories.root?.message}
+                    </p>
+                  ) : null}
+                  {fields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className="grid gap-3 rounded-xl border border-border/70 bg-muted/20 p-3 sm:grid-cols-[1fr_140px_auto]"
+                    >
+                      <Field id={`create-category-${index}`} label="Category">
+                        <Select {...form.register(`categories.${index}.categoryId`)}>
+                          <option value="">Select category</option>
+                          {expenseCategories.map((category) => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </Select>
+                      </Field>
+                      <Field id={`create-limit-${index}`} label="Limit">
+                        <Input
+                          inputMode="decimal"
+                          {...form.register(`categories.${index}.limitAmount`)}
+                        />
+                      </Field>
+                      <div className="flex items-end">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => remove(index)}
+                          aria-label="Remove category"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <Button type="submit" disabled={createBudget.isPending} className="w-full sm:w-auto">
+                  {createBudget.isPending ? "Creating…" : "Create budget"}
+                </Button>
               </form>
             </CardContent>
           </Card>
@@ -165,7 +255,7 @@ export default function BudgetsPage() {
         <EmptyState
           icon={PiggyBank}
           title="No budgets for this period"
-          description="Create a monthly budget to track spending against your limit."
+          description="Create a monthly budget with optional category limits."
           actionLabel="Create budget"
           onAction={() => setShowForm(true)}
         />
@@ -180,9 +270,12 @@ export default function BudgetsPage() {
           >
             <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
               <div>
-                <CardTitle>
-                  {budget.year}-{String(budget.month).padStart(2, "0")}
-                </CardTitle>
+                <Link href={`/budgets/${budget.id}`} className="group inline-flex items-center gap-1">
+                  <CardTitle className="group-hover:text-primary">
+                    {budget.year}-{String(budget.month).padStart(2, "0")}
+                  </CardTitle>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+                </Link>
                 <p className="mt-1 text-xs text-muted-foreground">Limit {budget.totalLimit}</p>
               </div>
               <BudgetStatusBadge status={budget.utilization.status} />
@@ -211,17 +304,24 @@ export default function BudgetsPage() {
               </div>
               {budget.categories.length > 0 && (
                 <div className="space-y-2">
-                  {budget.categories.map((cat) => (
+                  {budget.categories.slice(0, 3).map((cat) => (
                     <div
                       key={cat.id}
                       className="flex items-center justify-between text-sm text-muted-foreground"
                     >
-                      <span className="truncate">{cat.categoryId.slice(0, 8)}…</span>
+                      <span className="truncate">
+                        {names.get(cat.categoryId) || cat.categoryId.slice(0, 8)}
+                      </span>
                       <span className="tabular-nums">
                         {cat.utilization.spent} / {cat.limitAmount}
                       </span>
                     </div>
                   ))}
+                  {budget.categories.length > 3 && (
+                    <p className="text-xs text-muted-foreground">
+                      +{budget.categories.length - 3} more categories
+                    </p>
+                  )}
                 </div>
               )}
               <BudgetAlerts budgetId={budget.id} />

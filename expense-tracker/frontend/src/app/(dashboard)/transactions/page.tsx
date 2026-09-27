@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeftRight, ChevronRight } from "lucide-react";
@@ -80,10 +81,27 @@ function todayIsoDate() {
 }
 
 export default function TransactionsPage() {
+  return (
+    <Suspense
+      fallback={
+        <PageContainer>
+          <SkeletonRows count={5} />
+        </PageContainer>
+      }
+    >
+      <TransactionsPageContent />
+    </Suspense>
+  );
+}
+
+function TransactionsPageContent() {
+  const searchParams = useSearchParams();
+  const accountIdFromQuery = searchParams.get("accountId") || undefined;
   const [mode, setMode] = useState<FormMode>(null);
   const [typeFilter, setTypeFilter] = useState<"EXPENSE" | "INCOME" | "TRANSFER" | undefined>();
   const { data: txData, isLoading } = useTransactions({
     type: typeFilter,
+    accountId: accountIdFromQuery,
     page: 1,
     limit: 25,
   });
@@ -136,7 +154,11 @@ export default function TransactionsPage() {
     <PageContainer>
       <PageHeader
         title="Transactions"
-        description="Capture expenses, income, and transfers in one place."
+        description={
+          accountIdFromQuery
+            ? "Filtered to one account. Capture expenses, income, and transfers."
+            : "Capture expenses, income, and transfers in one place."
+        }
         actions={
           <div className="grid w-full grid-cols-3 gap-2 sm:flex sm:w-auto">
             {(["EXPENSE", "INCOME", "TRANSFER"] as const).map((value) => (
@@ -152,6 +174,15 @@ export default function TransactionsPage() {
           </div>
         }
       />
+
+      {accountIdFromQuery ? (
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border/70 bg-accent/40 px-3 py-2 text-sm">
+          <span className="text-muted-foreground">Filtered by account</span>
+          <Button asChild size="sm" variant="outline">
+            <Link href="/transactions">Clear filter</Link>
+          </Button>
+        </div>
+      ) : null}
 
       {mode === "EXPENSE" && (
         <FadeIn variant="scale">

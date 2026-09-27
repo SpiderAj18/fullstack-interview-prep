@@ -1829,7 +1829,7 @@ FE-F10 Dashboard Shell               COMPLETED
 FE-F20 Categories                    COMPLETED
 
 FE-F30 Accounts                      COMPLETED
-FE-F31 Account Details               PLANNED
+FE-F31 Account Details               COMPLETED
 
 FE-F40 Transactions                  COMPLETED
 FE-F41 Add Expense                   COMPLETED
@@ -1839,7 +1839,7 @@ FE-F44 Income                        COMPLETED
 FE-F45 Transfers                     COMPLETED
 
 FE-F50 Monthly Budget                COMPLETED
-FE-F51 Category Budget               PLANNED
+FE-F51 Category Budget               COMPLETED
 FE-F52 Budget Status                 COMPLETED
 FE-F53 Budget Alerts                 COMPLETED
 

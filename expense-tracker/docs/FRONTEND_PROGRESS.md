@@ -23,11 +23,11 @@ Operational board for F0–F7. Detailed IDs live in `FRONTEND_ROADMAP.md` / `FRO
 | FE-F10 | COMPLETED |
 | FE-F20 | COMPLETED |
 | FE-F30 | COMPLETED |
-| FE-F31 | PLANNED (account detail deep-dive deferred) |
+| FE-F31 | COMPLETED |
 | FE-F40, FE-F41, FE-F44, FE-F45 | COMPLETED |
 | FE-F42, FE-F43 | COMPLETED |
 | FE-F50, FE-F52, FE-F53 | COMPLETED |
-| FE-F51 | PARTIAL (create supports category limits via API; UI is total-limit first) |
+| FE-F51 | COMPLETED |
 
 ## Auth token handling (ADR-F005)
 

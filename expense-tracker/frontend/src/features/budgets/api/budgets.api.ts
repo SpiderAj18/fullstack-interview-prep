@@ -1,6 +1,27 @@
 import { apiClient } from "@/lib/api/client";
 import type { Budget, BudgetAlert } from "@/types/api";
 
+export type BudgetCategoryInput = {
+  categoryId: string;
+  limitAmount: string;
+};
+
+export type CreateBudgetInput = {
+  year: number;
+  month: number;
+  totalLimit: string;
+  warningThreshold?: number;
+  criticalThreshold?: number;
+  categories?: BudgetCategoryInput[];
+};
+
+export type UpdateBudgetInput = {
+  totalLimit?: string;
+  warningThreshold?: number;
+  criticalThreshold?: number;
+  categories?: BudgetCategoryInput[];
+};
+
 export const budgetsApi = {
   async list(params?: { year?: number; month?: number }) {
     const { data } = await apiClient.get<{ budgets: Budget[] }>("/api/v1/budgets", { params });
@@ -12,15 +33,18 @@ export const budgetsApi = {
     return data.budget;
   },
 
-  async create(body: {
-    year: number;
-    month: number;
-    totalLimit: string;
-    warningThreshold?: number;
-    criticalThreshold?: number;
-    categories?: Array<{ categoryId: string; limitAmount: string }>;
-  }) {
+  async create(body: CreateBudgetInput) {
     const { data } = await apiClient.post<{ budget: Budget }>("/api/v1/budgets", body);
+    return data.budget;
+  },
+
+  async update(id: string, body: UpdateBudgetInput) {
+    const { data } = await apiClient.patch<{ budget: Budget }>(`/api/v1/budgets/${id}`, body);
+    return data.budget;
+  },
+
+  async archive(id: string) {
+    const { data } = await apiClient.post<{ budget: Budget }>(`/api/v1/budgets/${id}/archive`);
     return data.budget;
   },
 
