@@ -3,13 +3,19 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PiggyBank } from "lucide-react";
 import { z } from "zod";
 import { AmountDisplay, PercentageDisplay } from "@/components/feedback/CurrencyDisplay";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { SkeletonRows } from "@/components/feedback/Skeleton";
 import { BudgetStatusBadge } from "@/components/feedback/StatusBadges";
+import { Field } from "@/components/forms/Field";
+import { FadeIn } from "@/components/motion/FadeIn";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   useAcknowledgeAlert,
   useBudgetAlerts,
@@ -35,15 +41,17 @@ function BudgetAlerts({ budgetId }: { budgetId: string }) {
   if (openAlerts.length === 0) return null;
 
   return (
-    <div className="mt-3 space-y-2 border-t border-border pt-3">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Alerts</p>
+    <div className="mt-3 space-y-2 border-t border-border/70 pt-3">
+      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        Alerts
+      </p>
       {openAlerts.map((alert) => (
         <div
           key={alert.id}
-          className="flex items-start justify-between gap-3 rounded-md bg-muted/60 px-3 py-2"
+          className="flex items-start justify-between gap-3 rounded-xl bg-muted/60 px-3 py-2.5"
         >
-          <div>
-            <div className="text-sm font-medium">{alert.status}</div>
+          <div className="min-w-0">
+            <div className="text-sm font-semibold">{alert.status}</div>
             <p className="text-xs text-muted-foreground">{alert.message}</p>
           </div>
           <Button
@@ -86,32 +94,27 @@ export default function BudgetsPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Budgets</h1>
-          <p className="text-sm text-muted-foreground">
-            Monthly limits with utilization and alerts from the API.
-          </p>
-        </div>
-        <Button onClick={() => setShowForm((v) => !v)}>
-          {showForm ? "Cancel" : "Create budget"}
-        </Button>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Budgets"
+        description="Monthly limits with live utilization and alerts from the API."
+        actions={
+          <Button className="w-full sm:w-auto" onClick={() => setShowForm((v) => !v)}>
+            {showForm ? "Cancel" : "Create budget"}
+          </Button>
+        }
+      />
 
-      <div className="flex flex-wrap gap-3">
-        <div className="space-y-1">
-          <Label htmlFor="filter-year">Year</Label>
+      <div className="grid grid-cols-2 gap-3 sm:flex sm:max-w-xs">
+        <Field id="filter-year" label="Year" className="flex-1">
           <Input
             id="filter-year"
             type="number"
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
-            className="w-28"
           />
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor="filter-month">Month</Label>
+        </Field>
+        <Field id="filter-month" label="Month" className="flex-1">
           <Input
             id="filter-month"
             type="number"
@@ -119,61 +122,68 @@ export default function BudgetsPage() {
             max={12}
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
-            className="w-24"
           />
-        </div>
+        </Field>
       </div>
 
       {showForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>New monthly budget</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={onSubmit} className="grid gap-4 md:grid-cols-3">
-              <div className="space-y-2">
-                <Label>Year</Label>
-                <Input type="number" {...form.register("year")} />
-              </div>
-              <div className="space-y-2">
-                <Label>Month</Label>
-                <Input type="number" min={1} max={12} {...form.register("month")} />
-              </div>
-              <div className="space-y-2">
-                <Label>Total limit</Label>
-                <Input {...form.register("totalLimit")} />
-              </div>
-              <div className="space-y-2">
-                <Label>Warning %</Label>
-                <Input type="number" {...form.register("warningThreshold")} />
-              </div>
-              <div className="space-y-2">
-                <Label>Critical %</Label>
-                <Input type="number" {...form.register("criticalThreshold")} />
-              </div>
-              <div className="md:col-span-3">
-                <Button type="submit" disabled={createBudget.isPending}>
-                  {createBudget.isPending ? "Creating…" : "Create budget"}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+        <FadeIn variant="scale">
+          <Card>
+            <CardHeader>
+              <CardTitle>New monthly budget</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <Field id="year" label="Year">
+                  <Input type="number" {...form.register("year")} />
+                </Field>
+                <Field id="month" label="Month">
+                  <Input type="number" min={1} max={12} {...form.register("month")} />
+                </Field>
+                <Field id="totalLimit" label="Total limit">
+                  <Input inputMode="decimal" {...form.register("totalLimit")} />
+                </Field>
+                <Field id="warningThreshold" label="Warning %">
+                  <Input type="number" {...form.register("warningThreshold")} />
+                </Field>
+                <Field id="criticalThreshold" label="Critical %">
+                  <Input type="number" {...form.register("criticalThreshold")} />
+                </Field>
+                <div className="sm:col-span-2 lg:col-span-3">
+                  <Button type="submit" disabled={createBudget.isPending} className="w-full sm:w-auto">
+                    {createBudget.isPending ? "Creating…" : "Create budget"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </FadeIn>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {isLoading && <p className="text-sm text-muted-foreground">Loading budgets…</p>}
-        {!isLoading && budgets.length === 0 && (
-          <p className="text-sm text-muted-foreground">No budgets for this period.</p>
-        )}
-        {budgets.map((budget) => (
-          <Card key={budget.id}>
+      {isLoading && <SkeletonRows count={3} />}
+      {!isLoading && budgets.length === 0 && (
+        <EmptyState
+          icon={PiggyBank}
+          title="No budgets for this period"
+          description="Create a monthly budget to track spending against your limit."
+          actionLabel="Create budget"
+          onAction={() => setShowForm(true)}
+        />
+      )}
+
+      <div className="grid gap-3 lg:grid-cols-2">
+        {budgets.map((budget, index) => (
+          <Card
+            key={budget.id}
+            className="animate-fade-up transition-transform duration-200 hover:-translate-y-0.5"
+            style={{ animationDelay: `${index * 40}ms` }}
+          >
             <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
               <div>
-                <CardTitle className="text-base">
+                <CardTitle>
                   {budget.year}-{String(budget.month).padStart(2, "0")}
                 </CardTitle>
-                <p className="text-xs text-muted-foreground">Limit {budget.totalLimit}</p>
+                <p className="mt-1 text-xs text-muted-foreground">Limit {budget.totalLimit}</p>
               </div>
               <BudgetStatusBadge status={budget.utilization.status} />
             </CardHeader>
@@ -181,16 +191,19 @@ export default function BudgetsPage() {
               <div className="flex items-end justify-between gap-3">
                 <div>
                   <p className="text-xs text-muted-foreground">Spent</p>
-                  <AmountDisplay amount={budget.utilization.spent} />
+                  <AmountDisplay amount={budget.utilization.spent} className="text-xl font-bold" />
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-muted-foreground">Used</p>
-                  <PercentageDisplay value={budget.utilization.percentageUsed} />
+                  <PercentageDisplay
+                    value={budget.utilization.percentageUsed}
+                    className="text-lg font-semibold"
+                  />
                 </div>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <div className="h-2.5 overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full bg-primary transition-all"
+                  className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
                   style={{
                     width: `${Math.min(100, Number(budget.utilization.percentageUsed) || 0)}%`,
                   }}
@@ -216,6 +229,6 @@ export default function BudgetsPage() {
           </Card>
         ))}
       </div>
-    </div>
+    </PageContainer>
   );
 }

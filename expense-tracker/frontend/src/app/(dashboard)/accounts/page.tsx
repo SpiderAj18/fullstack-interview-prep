@@ -3,12 +3,19 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Wallet } from "lucide-react";
 import { z } from "zod";
 import { AmountDisplay } from "@/components/feedback/CurrencyDisplay";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { SkeletonRows } from "@/components/feedback/Skeleton";
+import { Field } from "@/components/forms/Field";
+import { FadeIn } from "@/components/motion/FadeIn";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import { useAccounts, useArchiveAccount, useCreateAccount } from "@/features/accounts/hooks";
 
 const schema = z.object({
@@ -36,76 +43,80 @@ export default function AccountsPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Accounts</h1>
-          <p className="text-sm text-muted-foreground">Track balances across wallets and cards.</p>
-        </div>
-        <Button onClick={() => setShowForm((v) => !v)}>
-          {showForm ? "Cancel" : "Add account"}
-        </Button>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Accounts"
+        description="Track balances across bank, cash, cards, and wallets."
+        actions={
+          <Button className="w-full sm:w-auto" onClick={() => setShowForm((v) => !v)}>
+            {showForm ? "Cancel" : "Add account"}
+          </Button>
+        }
+      />
 
       {showForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>New account</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={onSubmit} className="grid gap-4 md:grid-cols-3">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" {...form.register("name")} />
-                {form.formState.errors.name && (
-                  <p className="text-xs text-destructive">{form.formState.errors.name.message}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="type">Type</Label>
-                <select
-                  id="type"
-                  className="flex h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
-                  {...form.register("type")}
+        <FadeIn variant="scale">
+          <Card>
+            <CardHeader>
+              <CardTitle>New account</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-3">
+                <Field id="name" label="Name" error={form.formState.errors.name?.message}>
+                  <Input id="name" placeholder="HDFC Salary" {...form.register("name")} />
+                </Field>
+                <Field id="type" label="Type">
+                  <Select id="type" {...form.register("type")}>
+                    <option value="BANK">Bank</option>
+                    <option value="CASH">Cash</option>
+                    <option value="CREDIT_CARD">Credit card</option>
+                    <option value="DEBIT_CARD">Debit card</option>
+                    <option value="WALLET">Wallet</option>
+                    <option value="UPI">UPI</option>
+                  </Select>
+                </Field>
+                <Field
+                  id="openingBalance"
+                  label="Opening balance"
+                  error={form.formState.errors.openingBalance?.message}
                 >
-                  <option value="BANK">Bank</option>
-                  <option value="CASH">Cash</option>
-                  <option value="CREDIT_CARD">Credit card</option>
-                  <option value="DEBIT_CARD">Debit card</option>
-                  <option value="WALLET">Wallet</option>
-                  <option value="UPI">UPI</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="openingBalance">Opening balance</Label>
-                <Input id="openingBalance" {...form.register("openingBalance")} />
-                {form.formState.errors.openingBalance && (
-                  <p className="text-xs text-destructive">
-                    {form.formState.errors.openingBalance.message}
-                  </p>
-                )}
-              </div>
-              <div className="md:col-span-3">
-                <Button type="submit" disabled={createAccount.isPending}>
-                  {createAccount.isPending ? "Creating…" : "Create account"}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+                  <Input id="openingBalance" inputMode="decimal" {...form.register("openingBalance")} />
+                </Field>
+                <div className="sm:col-span-3">
+                  <Button type="submit" disabled={createAccount.isPending} className="w-full sm:w-auto">
+                    {createAccount.isPending ? "Creating…" : "Create account"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </FadeIn>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {isLoading && <p className="text-sm text-muted-foreground">Loading accounts…</p>}
-        {!isLoading && accounts.length === 0 && (
-          <p className="text-sm text-muted-foreground">No accounts yet. Create one to get started.</p>
-        )}
-        {accounts.map((account) => (
-          <Card key={account.id}>
+      {isLoading && <SkeletonRows count={4} />}
+      {!isLoading && accounts.length === 0 && (
+        <EmptyState
+          icon={Wallet}
+          title="No accounts yet"
+          description="Create an account to start recording expenses and transfers."
+          actionLabel="Add account"
+          onAction={() => setShowForm(true)}
+        />
+      )}
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {accounts.map((account, index) => (
+          <Card
+            key={account.id}
+            className="animate-fade-up transition-transform duration-200 hover:-translate-y-0.5"
+            style={{ animationDelay: `${index * 40}ms` }}
+          >
             <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
-              <div>
-                <CardTitle className="text-base">{account.name}</CardTitle>
-                <p className="text-xs text-muted-foreground">{account.type}</p>
+              <div className="min-w-0">
+                <CardTitle className="truncate">{account.name}</CardTitle>
+                <p className="mt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {account.type.replaceAll("_", " ")}
+                </p>
               </div>
               {!account.isSystem && !account.archivedAt && (
                 <Button
@@ -119,11 +130,11 @@ export default function AccountsPage() {
               )}
             </CardHeader>
             <CardContent>
-              <AmountDisplay amount={account.currentBalance} className="text-xl" />
+              <AmountDisplay amount={account.currentBalance} className="text-2xl font-bold" />
             </CardContent>
           </Card>
         ))}
       </div>
-    </div>
+    </PageContainer>
   );
 }

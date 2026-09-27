@@ -3,13 +3,20 @@
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeftRight } from "lucide-react";
 import { z } from "zod";
 import { AmountDisplay } from "@/components/feedback/CurrencyDisplay";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { SkeletonRows } from "@/components/feedback/Skeleton";
 import { TransactionTypeBadge } from "@/components/feedback/StatusBadges";
+import { Field } from "@/components/forms/Field";
+import { FadeIn } from "@/components/motion/FadeIn";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import { useAccounts } from "@/features/accounts/hooks";
 import { useCategories } from "@/features/categories/hooks";
 import {
@@ -20,6 +27,7 @@ import {
 } from "@/features/transactions/hooks";
 import { formatDate } from "@/lib/formatting/money";
 import type { CategoryNode } from "@/types/api";
+import { cn } from "@/lib/utils";
 
 const amountSchema = z.string().regex(/^\d+(\.\d{1,2})?$/, "Use amount like 12.50");
 
@@ -123,245 +131,213 @@ export default function TransactionsPage() {
   const transactions = txData?.transactions ?? [];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Transactions</h1>
-          <p className="text-sm text-muted-foreground">
-            Unified history for expenses, incomes, and transfers.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant={mode === "EXPENSE" ? "default" : "outline"} onClick={() => setMode("EXPENSE")}>
-            Expense
-          </Button>
-          <Button variant={mode === "INCOME" ? "default" : "outline"} onClick={() => setMode("INCOME")}>
-            Income
-          </Button>
-          <Button
-            variant={mode === "TRANSFER" ? "default" : "outline"}
-            onClick={() => setMode("TRANSFER")}
-          >
-            Transfer
-          </Button>
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Transactions"
+        description="Capture expenses, income, and transfers in one place."
+        actions={
+          <div className="grid w-full grid-cols-3 gap-2 sm:flex sm:w-auto">
+            {(["EXPENSE", "INCOME", "TRANSFER"] as const).map((value) => (
+              <Button
+                key={value}
+                size="sm"
+                variant={mode === value ? "default" : "outline"}
+                onClick={() => setMode(value)}
+              >
+                {value === "EXPENSE" ? "Expense" : value === "INCOME" ? "Income" : "Transfer"}
+              </Button>
+            ))}
+          </div>
+        }
+      />
 
       {mode === "EXPENSE" && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Record expense</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form
-              className="grid gap-4 md:grid-cols-3"
-              onSubmit={expenseForm.handleSubmit(async (values) => {
-                await createExpense.mutateAsync(values);
-                expenseForm.reset({ ...values, amount: "", merchant: "", description: "" });
-                setMode(null);
-              })}
-            >
-              <div className="space-y-2">
-                <Label>Amount</Label>
-                <Input {...expenseForm.register("amount")} placeholder="12.50" />
-              </div>
-              <div className="space-y-2">
-                <Label>Account</Label>
-                <select
-                  className="flex h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
-                  {...expenseForm.register("accountId")}
-                >
-                  <option value="">Select account</option>
-                  {accounts.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <select
-                  className="flex h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
-                  {...expenseForm.register("categoryId")}
-                >
-                  <option value="">Select category</option>
-                  {flatExpense.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label>Date</Label>
-                <Input type="date" {...expenseForm.register("transactionDate")} />
-              </div>
-              <div className="space-y-2">
-                <Label>Merchant</Label>
-                <Input {...expenseForm.register("merchant")} />
-              </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Input {...expenseForm.register("description")} />
-              </div>
-              <div className="md:col-span-3 flex gap-2">
-                <Button type="submit" disabled={createExpense.isPending}>
-                  Save expense
-                </Button>
-                <Button type="button" variant="outline" onClick={() => setMode(null)}>
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+        <FadeIn variant="scale">
+          <Card>
+            <CardHeader>
+              <CardTitle>Record expense</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form
+                className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                onSubmit={expenseForm.handleSubmit(async (values) => {
+                  await createExpense.mutateAsync(values);
+                  expenseForm.reset({ ...values, amount: "", merchant: "", description: "" });
+                  setMode(null);
+                })}
+              >
+                <Field id="amount" label="Amount">
+                  <Input inputMode="decimal" placeholder="12.50" {...expenseForm.register("amount")} />
+                </Field>
+                <Field id="accountId" label="Account">
+                  <Select {...expenseForm.register("accountId")}>
+                    <option value="">Select account</option>
+                    {accounts.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field id="categoryId" label="Category">
+                  <Select {...expenseForm.register("categoryId")}>
+                    <option value="">Select category</option>
+                    {flatExpense.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field id="transactionDate" label="Date">
+                  <Input type="date" {...expenseForm.register("transactionDate")} />
+                </Field>
+                <Field id="merchant" label="Merchant">
+                  <Input {...expenseForm.register("merchant")} />
+                </Field>
+                <Field id="description" label="Description">
+                  <Input {...expenseForm.register("description")} />
+                </Field>
+                <div className="flex flex-col gap-2 sm:col-span-2 sm:flex-row lg:col-span-3">
+                  <Button type="submit" disabled={createExpense.isPending} className="w-full sm:w-auto">
+                    Save expense
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => setMode(null)} className="w-full sm:w-auto">
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </FadeIn>
       )}
 
       {mode === "INCOME" && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Record income</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form
-              className="grid gap-4 md:grid-cols-3"
-              onSubmit={incomeForm.handleSubmit(async (values) => {
-                await createIncome.mutateAsync(values);
-                incomeForm.reset({ ...values, amount: "", source: "", description: "" });
-                setMode(null);
-              })}
-            >
-              <div className="space-y-2">
-                <Label>Amount</Label>
-                <Input {...incomeForm.register("amount")} />
-              </div>
-              <div className="space-y-2">
-                <Label>Account</Label>
-                <select
-                  className="flex h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
-                  {...incomeForm.register("accountId")}
-                >
-                  <option value="">Select account</option>
-                  {accounts.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <select
-                  className="flex h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
-                  {...incomeForm.register("categoryId")}
-                >
-                  <option value="">Select category</option>
-                  {flatIncome.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label>Date</Label>
-                <Input type="date" {...incomeForm.register("transactionDate")} />
-              </div>
-              <div className="space-y-2">
-                <Label>Source</Label>
-                <Input {...incomeForm.register("source")} />
-              </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Input {...incomeForm.register("description")} />
-              </div>
-              <div className="md:col-span-3 flex gap-2">
-                <Button type="submit" disabled={createIncome.isPending}>
-                  Save income
-                </Button>
-                <Button type="button" variant="outline" onClick={() => setMode(null)}>
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+        <FadeIn variant="scale">
+          <Card>
+            <CardHeader>
+              <CardTitle>Record income</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form
+                className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                onSubmit={incomeForm.handleSubmit(async (values) => {
+                  await createIncome.mutateAsync(values);
+                  incomeForm.reset({ ...values, amount: "", source: "", description: "" });
+                  setMode(null);
+                })}
+              >
+                <Field id="income-amount" label="Amount">
+                  <Input inputMode="decimal" {...incomeForm.register("amount")} />
+                </Field>
+                <Field id="income-account" label="Account">
+                  <Select {...incomeForm.register("accountId")}>
+                    <option value="">Select account</option>
+                    {accounts.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field id="income-category" label="Category">
+                  <Select {...incomeForm.register("categoryId")}>
+                    <option value="">Select category</option>
+                    {flatIncome.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field id="income-date" label="Date">
+                  <Input type="date" {...incomeForm.register("transactionDate")} />
+                </Field>
+                <Field id="source" label="Source">
+                  <Input {...incomeForm.register("source")} />
+                </Field>
+                <Field id="income-description" label="Description">
+                  <Input {...incomeForm.register("description")} />
+                </Field>
+                <div className="flex flex-col gap-2 sm:col-span-2 sm:flex-row lg:col-span-3">
+                  <Button type="submit" disabled={createIncome.isPending} className="w-full sm:w-auto">
+                    Save income
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => setMode(null)} className="w-full sm:w-auto">
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </FadeIn>
       )}
 
       {mode === "TRANSFER" && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Record transfer</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form
-              className="grid gap-4 md:grid-cols-3"
-              onSubmit={transferForm.handleSubmit(async (values) => {
-                await createTransfer.mutateAsync(values);
-                transferForm.reset({ ...values, amount: "", description: "" });
-                setMode(null);
-              })}
-            >
-              <div className="space-y-2">
-                <Label>Amount</Label>
-                <Input {...transferForm.register("amount")} />
-              </div>
-              <div className="space-y-2">
-                <Label>From</Label>
-                <select
-                  className="flex h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
-                  {...transferForm.register("fromAccountId")}
-                >
-                  <option value="">Select account</option>
-                  {accounts.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label>To</Label>
-                <select
-                  className="flex h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
-                  {...transferForm.register("toAccountId")}
-                >
-                  <option value="">Select account</option>
-                  {accounts.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label>Date</Label>
-                <Input type="date" {...transferForm.register("transactionDate")} />
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label>Description</Label>
-                <Input {...transferForm.register("description")} />
-              </div>
-              <div className="md:col-span-3 flex gap-2">
-                <Button type="submit" disabled={createTransfer.isPending}>
-                  Save transfer
-                </Button>
-                <Button type="button" variant="outline" onClick={() => setMode(null)}>
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+        <FadeIn variant="scale">
+          <Card>
+            <CardHeader>
+              <CardTitle>Record transfer</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form
+                className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                onSubmit={transferForm.handleSubmit(async (values) => {
+                  await createTransfer.mutateAsync(values);
+                  transferForm.reset({ ...values, amount: "", description: "" });
+                  setMode(null);
+                })}
+              >
+                <Field id="transfer-amount" label="Amount">
+                  <Input inputMode="decimal" {...transferForm.register("amount")} />
+                </Field>
+                <Field id="fromAccountId" label="From">
+                  <Select {...transferForm.register("fromAccountId")}>
+                    <option value="">Select account</option>
+                    {accounts.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field id="toAccountId" label="To">
+                  <Select {...transferForm.register("toAccountId")}>
+                    <option value="">Select account</option>
+                    {accounts.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field id="transfer-date" label="Date">
+                  <Input type="date" {...transferForm.register("transactionDate")} />
+                </Field>
+                <Field id="transfer-description" label="Description" className="sm:col-span-2">
+                  <Input {...transferForm.register("description")} />
+                </Field>
+                <div className="flex flex-col gap-2 sm:col-span-2 sm:flex-row lg:col-span-3">
+                  <Button type="submit" disabled={createTransfer.isPending} className="w-full sm:w-auto">
+                    Save transfer
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => setMode(null)} className="w-full sm:w-auto">
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </FadeIn>
       )}
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 overflow-x-auto pb-1">
         {([undefined, "EXPENSE", "INCOME", "TRANSFER"] as const).map((value) => (
           <Button
             key={String(value)}
             size="sm"
             variant={typeFilter === value ? "default" : "outline"}
+            className="shrink-0"
             onClick={() => setTypeFilter(value)}
           >
             {value ?? "All"}
@@ -369,39 +345,51 @@ export default function TransactionsPage() {
         ))}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>History</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
-          {!isLoading && transactions.length === 0 && (
-            <p className="text-sm text-muted-foreground">No transactions yet.</p>
-          )}
-          {transactions.map((txn) => (
-            <div
-              key={`${txn.type}-${txn.id}`}
-              className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2"
-            >
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <TransactionTypeBadge type={txn.type} />
-                  <span className="truncate text-sm font-medium">
-                    {txn.merchant || txn.source || txn.description || "Transaction"}
-                  </span>
-                </div>
-                <div className="text-xs text-muted-foreground">{formatDate(txn.transactionDate)}</div>
-              </div>
-              <AmountDisplay
-                amount={txn.amount}
-                tone={
-                  txn.type === "EXPENSE" ? "expense" : txn.type === "INCOME" ? "income" : "neutral"
-                }
+      <FadeIn stagger={2}>
+        <Card>
+          <CardHeader>
+            <CardTitle>History</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {isLoading && <SkeletonRows count={5} />}
+            {!isLoading && transactions.length === 0 && (
+              <EmptyState
+                icon={ArrowLeftRight}
+                title="No transactions yet"
+                description="Use Expense, Income, or Transfer above to add your first entry."
               />
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    </div>
+            )}
+            {transactions.map((txn, index) => (
+              <div
+                key={`${txn.type}-${txn.id}`}
+                className={cn(
+                  "flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-muted/30 px-3.5 py-3 animate-fade-up",
+                )}
+                style={{ animationDelay: `${index * 30}ms` }}
+              >
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <TransactionTypeBadge type={txn.type} />
+                    <span className="truncate text-sm font-semibold">
+                      {txn.merchant || txn.source || txn.description || "Transaction"}
+                    </span>
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    {formatDate(txn.transactionDate)}
+                  </div>
+                </div>
+                <AmountDisplay
+                  amount={txn.amount}
+                  tone={
+                    txn.type === "EXPENSE" ? "expense" : txn.type === "INCOME" ? "income" : "neutral"
+                  }
+                  className="shrink-0 font-semibold"
+                />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </FadeIn>
+    </PageContainer>
   );
 }

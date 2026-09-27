@@ -4,16 +4,16 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Field } from "@/components/forms/Field";
+import { FadeIn } from "@/components/motion/FadeIn";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  useChangePassword,
-  useMe,
-  useUpdateProfile,
-} from "@/features/auth/hooks";
+import { useChangePassword, useMe, useUpdateProfile } from "@/features/auth/hooks";
 import { changePasswordSchema } from "@/features/auth/schemas";
+import { Skeleton } from "@/components/feedback/Skeleton";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
@@ -44,90 +44,98 @@ export default function ProfilePage() {
   }, [user, profileForm]);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
-        <p className="text-sm text-muted-foreground">Update your name or change your password.</p>
-      </div>
+    <PageContainer className="max-w-2xl">
+      <PageHeader
+        title="Profile"
+        description="Update your display name or change your password."
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Account</CardTitle>
-          <CardDescription>{isLoading ? "Loading…" : user?.email}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form
-            className="space-y-4"
-            onSubmit={profileForm.handleSubmit(async (values) => {
-              await updateProfile.mutateAsync(values);
-            })}
-          >
-            <div className="space-y-2">
-              <Label htmlFor="name">Display name</Label>
-              <Input id="name" {...profileForm.register("name")} />
-              {profileForm.formState.errors.name && (
-                <p className="text-xs text-destructive">
-                  {profileForm.formState.errors.name.message}
-                </p>
-              )}
-            </div>
-            <Button type="submit" disabled={updateProfile.isPending}>
-              {updateProfile.isPending ? "Saving…" : "Save profile"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      <FadeIn>
+        <Card>
+          <CardHeader>
+            <CardTitle>Account</CardTitle>
+            <CardDescription>
+              {isLoading ? <Skeleton className="mt-1 h-4 w-40" /> : user?.email}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form
+              className="space-y-4"
+              onSubmit={profileForm.handleSubmit(async (values) => {
+                await updateProfile.mutateAsync(values);
+              })}
+            >
+              <Field
+                id="name"
+                label="Display name"
+                error={profileForm.formState.errors.name?.message}
+              >
+                <Input id="name" autoComplete="name" {...profileForm.register("name")} />
+              </Field>
+              <Button type="submit" disabled={updateProfile.isPending} className="w-full sm:w-auto">
+                {updateProfile.isPending ? "Saving…" : "Save profile"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </FadeIn>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Change password</CardTitle>
-          <CardDescription>You will be signed out after a successful change.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form
-            className="space-y-4"
-            onSubmit={passwordForm.handleSubmit(async (values) => {
-              await changePassword.mutateAsync({
-                currentPassword: values.currentPassword,
-                newPassword: values.newPassword,
-              });
-            })}
-          >
-            <div className="space-y-2">
-              <Label htmlFor="currentPassword">Current password</Label>
-              <Input
-                id="currentPassword"
-                type="password"
-                {...passwordForm.register("currentPassword")}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="newPassword">New password</Label>
-              <Input
-                id="newPassword"
-                type="password"
-                {...passwordForm.register("newPassword")}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm new password</Label>
-              <Input
+      <FadeIn stagger={2}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Change password</CardTitle>
+            <CardDescription>You will be signed out after a successful change.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form
+              className="space-y-4"
+              onSubmit={passwordForm.handleSubmit(async (values) => {
+                await changePassword.mutateAsync({
+                  currentPassword: values.currentPassword,
+                  newPassword: values.newPassword,
+                });
+              })}
+            >
+              <Field id="currentPassword" label="Current password">
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  autoComplete="current-password"
+                  {...passwordForm.register("currentPassword")}
+                />
+              </Field>
+              <Field id="newPassword" label="New password">
+                <Input
+                  id="newPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  {...passwordForm.register("newPassword")}
+                />
+              </Field>
+              <Field
                 id="confirmPassword"
-                type="password"
-                {...passwordForm.register("confirmPassword")}
-              />
-              {passwordForm.formState.errors.confirmPassword && (
-                <p className="text-xs text-destructive">
-                  {passwordForm.formState.errors.confirmPassword.message}
-                </p>
-              )}
-            </div>
-            <Button type="submit" variant="secondary" disabled={changePassword.isPending}>
-              {changePassword.isPending ? "Updating…" : "Change password"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+                label="Confirm new password"
+                error={passwordForm.formState.errors.confirmPassword?.message}
+              >
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  {...passwordForm.register("confirmPassword")}
+                />
+              </Field>
+              <Button
+                type="submit"
+                variant="secondary"
+                disabled={changePassword.isPending}
+                className="w-full sm:w-auto"
+              >
+                {changePassword.isPending ? "Updating…" : "Change password"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </FadeIn>
+    </PageContainer>
   );
 }

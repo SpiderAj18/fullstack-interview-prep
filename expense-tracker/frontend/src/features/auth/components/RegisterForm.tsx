@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Field } from "@/components/forms/Field";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useRegister } from "@/features/auth/hooks";
 import { registerSchema, type RegisterFormValues } from "@/features/auth/schemas";
 
@@ -18,10 +18,17 @@ export function RegisterForm() {
   });
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Create account</CardTitle>
-        <CardDescription>Start tracking spending with seeded categories and Cash.</CardDescription>
+    <Card className="border-border/60 shadow-[var(--shadow-soft)]">
+      <CardHeader className="space-y-3">
+        <div className="inline-flex w-fit rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-accent-foreground">
+          Get started
+        </div>
+        <div>
+          <CardTitle className="text-2xl">Create your account</CardTitle>
+          <CardDescription className="mt-1.5">
+            Seeded categories and a Cash account are ready on day one.
+          </CardDescription>
+        </div>
       </CardHeader>
       <CardContent>
         <form
@@ -34,30 +41,39 @@ export function RegisterForm() {
             }),
           )}
         >
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input id="name" {...form.register("name")} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" {...form.register("email")} />
-            {form.formState.errors.email && (
-              <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" {...form.register("password")} />
-            {form.formState.errors.password && (
-              <p className="text-xs text-destructive">{form.formState.errors.password.message}</p>
-            )}
-          </div>
-          <Button className="w-full" type="submit" disabled={registerMutation.isPending}>
+          <Field id="name" label="Name">
+            <Input id="name" autoComplete="name" placeholder="Ajay" {...form.register("name")} />
+          </Field>
+          <Field id="email" label="Email" error={form.formState.errors.email?.message}>
+            <Input
+              id="email"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              placeholder="you@email.com"
+              {...form.register("email")}
+            />
+          </Field>
+          <Field
+            id="password"
+            label="Password"
+            error={form.formState.errors.password?.message}
+            hint="At least 8 characters"
+          >
+            <Input
+              id="password"
+              type="password"
+              autoComplete="new-password"
+              placeholder="••••••••"
+              {...form.register("password")}
+            />
+          </Field>
+          <Button className="w-full" size="lg" type="submit" disabled={registerMutation.isPending}>
             {registerMutation.isPending ? "Creating…" : "Create account"}
           </Button>
           <p className="text-center text-sm text-muted-foreground">
             Already registered?{" "}
-            <Link className="text-primary underline" href="/login">
+            <Link className="font-semibold text-primary hover:underline" href="/login">
               Sign in
             </Link>
           </p>

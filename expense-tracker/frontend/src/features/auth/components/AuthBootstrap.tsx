@@ -55,8 +55,10 @@ export function AuthBootstrap({ children }: { children: React.ReactNode }) {
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
-        Loading…
+      <div className="flex min-h-dvh items-center justify-center px-4">
+        <div className="animate-fade-up rounded-2xl border border-border/70 bg-card/90 px-6 py-5 text-sm text-muted-foreground shadow-[var(--shadow-card)] backdrop-blur">
+          Loading your workspace…
+        </div>
       </div>
     );
   }
