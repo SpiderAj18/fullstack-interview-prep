@@ -11,6 +11,8 @@ export const queryKeys = {
   },
   transactions: {
     all: (filters?: Record<string, unknown>) => ["transactions", filters] as const,
+    detail: (type: "EXPENSE" | "INCOME" | "TRANSFER", id: string) =>
+      ["transaction", type, id] as const,
   },
   budgets: {
     all: (filters?: Record<string, unknown>) => ["budgets", filters] as const,

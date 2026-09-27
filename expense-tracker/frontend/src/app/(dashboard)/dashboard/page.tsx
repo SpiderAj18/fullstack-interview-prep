@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAccounts } from "@/features/accounts/hooks";
 import { useBudgets } from "@/features/budgets/hooks";
 import { useTransactions } from "@/features/transactions/hooks";
+import { toTransactionTypeParam } from "@/features/transactions/api/transactions.api";
 import { formatDate } from "@/lib/formatting/money";
 
 export default function DashboardPage() {
@@ -110,8 +111,9 @@ export default function DashboardPage() {
               />
             )}
             {recent.map((txn, index) => (
-              <div
+              <Link
                 key={`${txn.type}-${txn.id}`}
+                href={`/transactions/${toTransactionTypeParam(txn.type)}/${txn.id}`}
                 className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-muted/30 px-3.5 py-3 transition-colors hover:bg-muted/60 animate-fade-up"
                 style={{ animationDelay: `${index * 40}ms` }}
               >
@@ -133,7 +135,7 @@ export default function DashboardPage() {
                   }
                   className="shrink-0 text-base font-semibold"
                 />
-              </div>
+              </Link>
             ))}
           </CardContent>
         </Card>

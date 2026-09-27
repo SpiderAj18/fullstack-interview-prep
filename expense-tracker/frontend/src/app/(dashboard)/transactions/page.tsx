@@ -1,9 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeftRight } from "lucide-react";
+import { ArrowLeftRight, ChevronRight } from "lucide-react";
 import { z } from "zod";
 import { AmountDisplay } from "@/components/feedback/CurrencyDisplay";
 import { EmptyState } from "@/components/feedback/EmptyState";
@@ -25,6 +26,7 @@ import {
   useCreateTransfer,
   useTransactions,
 } from "@/features/transactions/hooks";
+import { toTransactionTypeParam } from "@/features/transactions/api/transactions.api";
 import { formatDate } from "@/lib/formatting/money";
 import type { CategoryNode } from "@/types/api";
 import { cn } from "@/lib/utils";
@@ -360,10 +362,11 @@ export default function TransactionsPage() {
               />
             )}
             {transactions.map((txn, index) => (
-              <div
+              <Link
                 key={`${txn.type}-${txn.id}`}
+                href={`/transactions/${toTransactionTypeParam(txn.type)}/${txn.id}`}
                 className={cn(
-                  "flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-muted/30 px-3.5 py-3 animate-fade-up",
+                  "flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-muted/30 px-3.5 py-3 transition-colors hover:bg-muted/60 animate-fade-up",
                 )}
                 style={{ animationDelay: `${index * 30}ms` }}
               >
@@ -376,16 +379,24 @@ export default function TransactionsPage() {
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground">
                     {formatDate(txn.transactionDate)}
+                    {txn.archivedAt ? " · Archived" : ""}
                   </div>
                 </div>
-                <AmountDisplay
-                  amount={txn.amount}
-                  tone={
-                    txn.type === "EXPENSE" ? "expense" : txn.type === "INCOME" ? "income" : "neutral"
-                  }
-                  className="shrink-0 font-semibold"
-                />
-              </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <AmountDisplay
+                    amount={txn.amount}
+                    tone={
+                      txn.type === "EXPENSE"
+                        ? "expense"
+                        : txn.type === "INCOME"
+                          ? "income"
+                          : "neutral"
+                    }
+                    className="font-semibold"
+                  />
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" aria-hidden />
+                </div>
+              </Link>
             ))}
           </CardContent>
         </Card>

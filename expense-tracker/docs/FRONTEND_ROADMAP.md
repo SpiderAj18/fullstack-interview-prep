@@ -1608,8 +1608,8 @@ FE-F31  Account Details                 PLANNED
 Transactions
 FE-F40  Transaction List                COMPLETED
 FE-F41  Add Expense                     COMPLETED
-FE-F42  Transaction Details             PLANNED
-FE-F43  Edit/Delete Expense             PLANNED
+FE-F42  Transaction Details             COMPLETED
+FE-F43  Edit/Delete Expense             COMPLETED
 FE-F44  Income                          COMPLETED
 FE-F45  Transfers                       COMPLETED
 
